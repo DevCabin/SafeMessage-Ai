@@ -1,0 +1,29 @@
+{
+  "name": "safemessage-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/stripe/webhook"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.1",
+    "openai": "^4.58.1",
+    "stripe": "^16.9.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.7.4",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/uuid": "^9.0.8",
+    "eslint": "9.13.0",
+    "eslint-config-next": "15.0.3",
+    "typescript": "5.6.3",
+    "next": "15.0.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
