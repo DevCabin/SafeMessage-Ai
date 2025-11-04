@@ -5,8 +5,8 @@ import { getOrCreateUid } from "../../_session";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-06-20" });
 
 export async function POST(req: NextRequest) {
-  const { email } = await req.json().catch(() => ({}));
-  const uid = await getOrCreateUid();
+  const { email, fingerprint } = await req.json().catch(() => ({}));
+  const uid = await getOrCreateUid(fingerprint);
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",

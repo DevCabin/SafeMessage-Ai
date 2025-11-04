@@ -4,8 +4,9 @@ import { getOrCreateUid } from "../../_session";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-06-20" });
 
-export async function POST(_req: NextRequest) {
-  const uid = await getOrCreateUid();
+export async function POST(req: NextRequest) {
+  const { fingerprint } = await req.json().catch(() => ({}));
+  const uid = await getOrCreateUid(fingerprint);
 
   // Find a customer by metadata.uid (requires you attach it when creating/subscribing)
   const customers = await stripe.customers.list({ limit: 100 }); // naive; fine for small scale

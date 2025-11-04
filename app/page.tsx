@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 type Analysis = {
   verdict: "SAFE" | "UNSAFE" | "UNKNOWN";
@@ -16,10 +17,32 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [usage, setUsage] = useState<{ used: number; limit: number; premium: boolean }>({ used: 0, limit: 5, premium: false });
   const [email, setEmail] = useState("");
+  const [fingerprint, setFingerprint] = useState<string | null>(null);
+
+  // Generate device fingerprint on mount
+  useEffect(() => {
+    const generateFingerprint = async () => {
+      try {
+        const fp = await FingerprintJS.load();
+        const result = await fp.get();
+        setFingerprint(result.visitorId);
+      } catch (error) {
+        console.warn("Fingerprint generation failed, using fallback:", error);
+        // Fallback will be handled by server-side UUID
+      }
+    };
+    generateFingerprint();
+  }, []);
 
   useEffect(() => {
-    fetch("/api/usage").then(r => r.json()).then(setUsage).catch(() => {});
-  }, []);
+    if (fingerprint) {
+      fetch("/api/usage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fingerprint })
+      }).then(r => r.json()).then(setUsage).catch(() => {});
+    }
+  }, [fingerprint]);
 
   const analyze = async () => {
     setLoading(true);
@@ -28,7 +51,7 @@ export default function HomePage() {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sender, body, context })
+        body: JSON.stringify({ sender, body, context, fingerprint })
       });
 
       if (res.status === 402) {
@@ -37,7 +60,7 @@ export default function HomePage() {
           const pay = await fetch("/api/stripe/checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email })
+            body: JSON.stringify({ email, fingerprint })
           });
           const { url } = await pay.json();
           if (url) window.location.href = url;
@@ -56,11 +79,7 @@ export default function HomePage() {
     }
   };
 
-  const openPortal = async () => {
-    const res = await fetch("/api/stripe/portal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
-  };
+
 
   return (
     <main>
@@ -116,10 +135,14 @@ export default function HomePage() {
           Usage: {usage.used}/{usage.premium ? "∞" : usage.limit} {usage.premium ? "(Premium)" : ""}
         </span>
         {usage.premium ? (
-          <button onClick={openPortal} style={{ padding: "6px 10px", borderRadius: 6, background: "#14b8a6", color: "black", fontWeight: 700 }}>Manage Billing</button>
+          <button onClick={async () => {
+            const res = await fetch("/api/stripe/portal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fingerprint }) });
+            const data = await res.json();
+            if (data.url) window.location.href = data.url;
+          }} style={{ padding: "6px 10px", borderRadius: 6, background: "#14b8a6", color: "black", fontWeight: 700 }}>Manage Billing</button>
         ) : (
           <button onClick={async () => {
-            const res = await fetch("/api/stripe/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+            const res = await fetch("/api/stripe/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, fingerprint }) });
             const data = await res.json();
             if (data.url) window.location.href = data.url;
           }} style={{ padding: "6px 10px", borderRadius: 6, background: "#fbbf24", color: "black", fontWeight: 700 }}>

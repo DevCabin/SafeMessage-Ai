@@ -8,12 +8,12 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 const FREE_LIMIT = 5;
 
 export async function POST(req: NextRequest) {
-  const { sender = "", body = "", context = "" } = await req.json().catch(() => ({}));
+  const { sender = "", body = "", context = "", fingerprint } = await req.json().catch(() => ({}));
   if (!body || typeof body !== "string") {
     return NextResponse.json({ error: "Missing message body" }, { status: 400 });
   }
 
-  const uid = await getOrCreateUid();
+  const uid = await getOrCreateUid(fingerprint);
   const kv = getKV();
 
   const premium = (await kv.get<boolean>(`premium:${uid}`)) || false;
