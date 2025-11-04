@@ -70,10 +70,18 @@ export default function HomePage() {
 
       const data = await res.json();
       setResult(data);
-      const u = await fetch("/api/usage").then(r => r.json());
-      setUsage(u);
+      // Refresh usage with fingerprint after successful analysis
+      if (fingerprint) {
+        const u = await fetch("/api/usage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fingerprint })
+        }).then(r => r.json());
+        setUsage(u);
+      }
     } catch (e) {
-      alert("Something went wrong.");
+      console.error("Analysis error:", e);
+      alert("Analysis failed. Please check your API keys are configured correctly.");
     } finally {
       setLoading(false);
     }
@@ -142,9 +150,20 @@ export default function HomePage() {
           }} style={{ padding: "6px 10px", borderRadius: 6, background: "#14b8a6", color: "black", fontWeight: 700 }}>Manage Billing</button>
         ) : (
           <button onClick={async () => {
-            const res = await fetch("/api/stripe/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, fingerprint }) });
-            const data = await res.json();
-            if (data.url) window.location.href = data.url;
+            try {
+              const res = await fetch("/api/stripe/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, fingerprint }) });
+              const data = await res.json();
+              if (data.url) {
+                window.location.href = data.url;
+              } else if (data.error) {
+                alert(`Payment setup failed: ${data.error}`);
+              } else {
+                alert("Payment setup failed. Please check your Stripe configuration.");
+              }
+            } catch (e) {
+              console.error("Checkout error:", e);
+              alert("Payment setup failed. Please check your Stripe API keys are configured correctly.");
+            }
           }} style={{ padding: "6px 10px", borderRadius: 6, background: "#fbbf24", color: "black", fontWeight: 700 }}>
             Upgrade ($5/mo)
           </button>
