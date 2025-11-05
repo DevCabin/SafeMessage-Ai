@@ -146,7 +146,14 @@ export default function HomePage() {
           <button onClick={async () => {
             const res = await fetch("/api/stripe/portal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fingerprint }) });
             const data = await res.json();
-            if (data.url) window.location.href = data.url;
+            if (data.url) {
+              window.location.href = data.url;
+            } else if (data.stripeDashboard) {
+              window.open(data.stripeDashboard, '_blank');
+              alert("Billing management coming soon. Opening Stripe dashboard for now.");
+            } else {
+              alert(data.error || "Billing management not available yet.");
+            }
           }} style={{ padding: "6px 10px", borderRadius: 6, background: "#14b8a6", color: "black", fontWeight: 700 }}>Manage Billing</button>
         ) : (
           <button onClick={async () => {

@@ -24,9 +24,11 @@ export async function POST(req: NextRequest) {
       mode: "subscription",
       customer_email: email || undefined,
       line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=cancel`,
-      metadata: { uid },
+    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=cancel`,
+    metadata: { uid },
+    // For now, we'll handle premium status manually via Stripe dashboard
+    // Webhooks can be added later for automatic updates
     });
 
     return NextResponse.json({ url: session.url });
