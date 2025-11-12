@@ -13,8 +13,9 @@ export async function POST(req: NextRequest) {
 
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET!);
-  } catch (err: any) {
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return new NextResponse(`Webhook Error: ${message}`, { status: 400 });
   }
 
   const kv = getKV();
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      const uid = (session.metadata as any)?.uid;
+      const uid = (session.metadata as Record<string, string> | undefined)?.uid;
       if (uid) {
         // Mark premium and attach uid to customer for portal
         await kv.set(`premium:${uid}`, true);
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
       // For simplicity assume you stored mapping:
       // kv.set(`uidFor:${customerId}`, uid) and kv.set(`stripeCustomerFor:${uid}`, customerId)
       // Try both directions:
-      let uid = await kv.get<string>(`uidFor:${customerId}`);
+      const uid = await kv.get<string>(`uidFor:${customerId}`);
       if (!uid) {
         // attempt reverse search (not efficient, but ok for MVP if not available)
         // skip expensive search; just no-op if unknown

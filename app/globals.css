@@ -1,2 +1,33 @@
-:root { color-scheme: dark; }
-* { box-sizing: border-box; }
+:root {
+  color-scheme: dark;
+  font-size: 16px;
+}
+* {
+  box-sizing: border-box;
+}
+
+/* Senior-friendly styles */
+button, input, textarea, select {
+  font-size: 18px;
+  min-height: 44px;
+}
+
+button {
+  cursor: pointer;
+}
+
+input, textarea {
+  padding: 12px;
+}
+
+/* High contrast focus states */
+button:focus, input:focus, textarea:focus {
+  outline: 3px solid #22c55e;
+  outline-offset: 2px;
+}
+
+/* Ensure good contrast */
+body {
+  background-color: #0B1324;
+  color: #ffffff;
+}

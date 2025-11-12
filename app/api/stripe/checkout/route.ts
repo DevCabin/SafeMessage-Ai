@@ -32,15 +32,17 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Stripe checkout error:", error);
 
     // Return specific error messages
-    if (error.type === "StripeAuthenticationError") {
-      return NextResponse.json({ error: "Invalid Stripe API key" }, { status: 500 });
-    }
-    if (error.type === "StripeInvalidRequestError") {
-      return NextResponse.json({ error: `Invalid request: ${error.message}` }, { status: 400 });
+    if (error instanceof Error && 'type' in error && typeof error.type === 'string') {
+      if (error.type === "StripeAuthenticationError") {
+        return NextResponse.json({ error: "Invalid Stripe API key" }, { status: 500 });
+      }
+      if (error.type === "StripeInvalidRequestError") {
+        return NextResponse.json({ error: `Invalid request: ${error.message}` }, { status: 400 });
+      }
     }
 
     return NextResponse.json({ error: "Payment setup failed" }, { status: 500 });

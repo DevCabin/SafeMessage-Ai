@@ -2,13 +2,13 @@ import { kv } from "@vercel/kv";
 
 // Local storage fallback for development
 class LocalKV {
-  private data: Map<string, any> = new Map();
+  private data: Map<string, unknown> = new Map();
 
   async get<T>(key: string): Promise<T | null> {
-    return this.data.get(key) || null;
+    return (this.data.get(key) as T) || null;
   }
 
-  async set(key: string, value: any): Promise<void> {
+  async set(key: string, value: unknown): Promise<void> {
     this.data.set(key, value);
   }
 }

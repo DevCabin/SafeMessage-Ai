@@ -1,14 +1,24 @@
-export const metadata = {
-  title: "SafeMessage AI",
-  description: "Check messages for phishing and scam risks"
-};
+import type { Metadata } from 'next'
+import './globals.css'
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata: Metadata = {
+  title: 'ScamBomb - Stop scams in one click',
+  description: 'Paste any text, email, or SMS. ScamBomb checks red flags, explains the risk in plain English, and tells you exactly what to do next.',
+  icons: {
+    icon: '/favicon.ico',
+  },
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body style={{ fontFamily: "ui-sans-serif, system-ui, -apple-system", background: "#0b1120", color: "white" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto", padding: 24 }}>{children}</div>
+      <body className="bg-[#0B1324] text-white min-h-screen antialiased" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px" }}>{children}</div>
       </body>
     </html>
-  );
+  )
 }
