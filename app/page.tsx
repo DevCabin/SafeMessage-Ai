@@ -13,7 +13,7 @@ type Analysis = {
 export default function HomePage() {
   const [sender, setSender] = useState("");
   const [body, setBody] = useState("");
-  const [context, setContext] = useState("");
+  const [context] = useState("");
   const [result, setResult] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [usage, setUsage] = useState<{ used: number; limit: number; premium: boolean }>({ used: 0, limit: 5, premium: false });
