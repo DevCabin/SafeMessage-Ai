@@ -24,6 +24,7 @@ export default function HomePage() {
   const [showAccessibility, setShowAccessibility] = useState(true);
   const [fontSize, setFontSize] = useState(16); // in px
   const [activeSection, setActiveSection] = useState<'input' | 'results'>('input');
+  const [useLocalModel, setUseLocalModel] = useState(false);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function HomePage() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await fetch("/api/analyze", {
+      const res = await fetch(`/api/analyze${useLocalModel ? '?local=true' : ''}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sender, body, context, fingerprint })
@@ -237,6 +238,23 @@ export default function HomePage() {
               }}
             >
               - Font Size
+            </button>
+            <button
+              onClick={() => setUseLocalModel(!useLocalModel)}
+              style={{
+                width: '100%',
+                padding: '12px 15px',
+                borderRadius: '5px',
+                border: '2px solid white',
+                background: useLocalModel ? '#22c55e' : 'transparent',
+                color: 'white',
+                fontSize: '14px',
+                cursor: 'pointer',
+                minHeight: '44px',
+                fontWeight: 'bold'
+              }}
+            >
+              {useLocalModel ? '🖥️ Local Model' : '☁️ OpenAI Model'}
             </button>
           </div>
         ) : (
