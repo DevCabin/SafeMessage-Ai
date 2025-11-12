@@ -271,6 +271,13 @@ export default function HomePage() {
           textAlign: 'center',
           marginBottom: '2rem'
         }}>
+          <Image
+            src="/logo.png"
+            alt="ScamBomb"
+            width={150}
+            height={150}
+            style={{ maxHeight: '100px', width: 'auto', marginBottom: '1rem' }}
+          />
           <h1 style={{
             fontSize: '2.5rem',
             fontWeight: 800,
@@ -278,13 +285,7 @@ export default function HomePage() {
             marginBottom: '1rem',
             lineHeight: 1.1
           }}>
-            <Image
-              src="/logo.png"
-              alt="ScamBomb"
-              width={200}
-              height={150}
-              style={{ maxHeight: '150px', width: 'auto' }}
-            />
+            SafeMessage AI
           </h1>
         </div>
 
