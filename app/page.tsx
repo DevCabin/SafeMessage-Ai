@@ -213,7 +213,7 @@ export default function HomePage() {
                 borderRadius: '5px',
                 border: '2px solid white',
                 background: 'transparent',
-                color: 'white',
+                color: highContrast ? 'black' : 'white',
                 fontSize: '14px',
                 cursor: 'pointer',
                 minHeight: '44px',
@@ -230,7 +230,7 @@ export default function HomePage() {
                 borderRadius: '5px',
                 border: '2px solid white',
                 background: 'transparent',
-                color: 'white',
+                color: highContrast ? 'black' : 'white',
                 fontSize: '14px',
                 cursor: 'pointer',
                 minHeight: '44px',
@@ -239,23 +239,7 @@ export default function HomePage() {
             >
               - Font Size
             </button>
-            <button
-              onClick={() => setUseLocalModel(!useLocalModel)}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                borderRadius: '5px',
-                border: '2px solid white',
-                background: useLocalModel ? '#22c55e' : 'transparent',
-                color: 'white',
-                fontSize: '14px',
-                cursor: 'pointer',
-                minHeight: '44px',
-                fontWeight: 'bold'
-              }}
-            >
-              {useLocalModel ? '🖥️ Local Model' : '☁️ OpenAI Model'}
-            </button>
+
           </div>
         ) : (
           <button
