@@ -818,46 +818,53 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Email Input for Premium */}
-        {!usage.premium && (
-          <div style={{
-            background: highContrast ? '#ffffff' : 'rgba(15, 23, 42, 0.8)',
-            border: highContrast ? '3px solid #000000' : '2px solid rgba(51, 65, 85, 0.5)',
-            borderRadius: '15px',
-            padding: '30px',
-            marginBottom: '2rem',
-            fontSize: baseFontSize,
-            maxWidth: '500px',
-            margin: '0 auto 2rem'
-          }}>
-            <label style={{
-              display: 'block',
-              fontSize: largeFontSize,
+        {/* Footer Navigation */}
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+          justifyContent: 'center',
+          marginTop: '2rem',
+          flexWrap: 'wrap'
+        }}>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              background: highContrast ? '#666666' : '#6b7280',
+              color: 'white',
+              border: 'none',
+              padding: '15px 25px',
+              borderRadius: '10px',
               fontWeight: 600,
-              color: highContrast ? '#000000' : '#f1f5f9',
-              marginBottom: '15px'
-            }}>
-              📧 Enter Your Email for Premium Upgrade
-            </label>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your.email@example.com"
-              type="email"
-              style={{
-                width: '100%',
-                padding: '15px 20px',
-                borderRadius: '10px',
-                border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
-                background: highContrast ? '#ffffff' : 'rgba(30, 41, 59, 0.8)',
-                color: highContrast ? '#000000' : 'white',
-                fontSize: baseFontSize,
-                outline: 'none',
-                minHeight: '50px'
-              }}
-            />
-          </div>
-        )}
+              fontSize: baseFontSize,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              minHeight: '50px'
+            }}
+          >
+            🏠 Home
+          </button>
+          <button
+            onClick={() => window.open('https://blog.scambomb.ai', '_blank')}
+            style={{
+              background: highContrast ? '#666666' : '#6b7280',
+              color: 'white',
+              border: 'none',
+              padding: '15px 25px',
+              borderRadius: '10px',
+              fontWeight: 600,
+              fontSize: baseFontSize,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              minHeight: '50px'
+            }}
+          >
+            📖 Read Blog
+          </button>
+        </div>
 
 
       </main>
