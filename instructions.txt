@@ -1,6 +1,6 @@
 1. Architecture Overview
 
-You can use SafeMessage AI as the backend model via the OpenAI API, and build your own frontend + authentication + payment layers.
+You can use ScamBomb as the backend model via the OpenAI API, and build your own frontend + authentication + payment layers.
 
 A simple architecture:
 
@@ -8,16 +8,16 @@ Frontend (React / Vue / HTML)
    ↓
 Backend (Node.js / Python Flask)
    ↓
-OpenAI API (SafeMessage AI via Assistants API)
+OpenAI API (ScamBomb via Assistants API)
 
-2. Using SafeMessage AI as a Backend
+2. Using ScamBomb as a Backend
 
 You’d:
 
 Create an Assistant via the OpenAI Assistants API
 .
 
-Load your current SafeMessage AI instructions into that assistant.
+Load your current ScamBomb instructions into that assistant.
 
 Expose an endpoint (e.g., /analyze) that:
 
@@ -81,7 +81,7 @@ Would you like me to sketch out a starter architecture diagram or code scaffold 
 Ok, what I need from you at this point is step by step copy and paste code for a "hosted on vercel" version of this that uses our GPT as the backend.
 ===========
 
-Awesome—here’s a copy-paste, Vercel-ready Next.js app that uses your GPT (SafeMessage AI) as the backend, includes 5 free checks per device, and a $5/mo premium using Stripe. It’s minimal but complete: just drop these files in, set env vars, and deploy.
+Awesome—here’s a copy-paste, Vercel-ready Next.js app that uses your GPT (ScamBomb) as the backend, includes 5 free checks per device, and a $5/mo premium using Stripe. It’s minimal but complete: just drop these files in, set env vars, and deploy.
 
 0) Project Setup
 # create app
@@ -149,7 +149,7 @@ On Vercel: add Vercel KV (or Upstash Redis) integration to your project; the fou
 
 4) app/layout.tsx
 export const metadata = {
-  title: "SafeMessage AI",
+  title: "ScamBomb",
   description: "Check messages for phishing and scam risks"
 };
 
@@ -230,7 +230,7 @@ export default function HomePage() {
 
   return (
     <main>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>SafeMessage AI</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>ScamBomb</h1>
       <p style={{ color: "#9CA3AF", marginBottom: 20 }}>
         Check if a message is SAFE, UNSAFE, or UNKNOWN. 5 free checks, then $5/mo unlimited.
       </p>
@@ -310,7 +310,7 @@ export const getKV = () => kv; // thin wrapper in case you want to swap later
 
 7) lib/safeMessagePrompt.ts
 export const SAFE_MESSAGE_SYSTEM_PROMPT = `
-You are SafeMessage AI, a digital safety assistant that helps users determine whether a pasted message, email, or uploaded screenshot is likely SAFE, UNSAFE, or UNKNOWN. You analyze sender info, message text, tone, links, requests, and language patterns for signs of phishing, scams, or social engineering.
+You are ScamBomb, a digital safety assistant that helps users determine whether a pasted message, email, or uploaded screenshot is likely SAFE, UNSAFE, or UNKNOWN. You analyze sender info, message text, tone, links, requests, and language patterns for signs of phishing, scams, or social engineering.
 
 You must always collect key details (Sender/From, Message Body, optional Context). Analyze for risk patterns, and output a verdict (SAFE / UNSAFE / UNKNOWN) with short reasoning and next steps. Use clear, calm, non-technical language. Respect privacy; do not request unnecessary personal data.
 
@@ -340,7 +340,7 @@ Scoring (examples):
 - Poor grammar: +10–20%
 
 Response block format:
-🔍 SafeMessage AI Analysis
+🔍 ScamBomb Analysis
 
 Verdict: [SAFE | UNSAFE | UNKNOWN]
 

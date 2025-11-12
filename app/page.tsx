@@ -278,15 +278,7 @@ export default function HomePage() {
             height={150}
             style={{ maxHeight: '100px', width: 'auto', marginBottom: '1rem' }}
           />
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: 800,
-            color: highContrast ? '#ffffff' : '#f8fafc',
-            marginBottom: '1rem',
-            lineHeight: 1.1
-          }}>
-            SafeMessage AI
-          </h1>
+
         </div>
 
 

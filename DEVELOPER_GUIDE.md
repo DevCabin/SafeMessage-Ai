@@ -1,6 +1,6 @@
-# SafeMessage AI Developer Guide
+# ScamBomb Developer Guide
 
-This guide provides a deep dive into the SafeMessage AI web application architecture, logic flow, and implementation details for developers.
+This guide provides a deep dive into the ScamBomb web application architecture, logic flow, and implementation details for developers.
 
 ## 🏗️ Application Architecture
 
@@ -434,4 +434,4 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 - **Queue System:** Background processing for heavy analysis
 - **Multi-Region:** Global deployment for better performance
 
-This guide covers the complete logic flow and architecture of SafeMessage AI. The application follows a simple but effective freemium model with robust security and privacy protections.
+This guide covers the complete logic flow and architecture of ScamBomb. The application follows a simple but effective freemium model with robust security and privacy protections.

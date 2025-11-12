@@ -1,4 +1,4 @@
-# SafeMessage AI Web App
+# ScamBomb
 
 A web application that uses AI to analyze messages for phishing, scams, and social engineering risks. Built with Next.js, powered by OpenAI's GPT models, and featuring a freemium model with Stripe payments.
 
@@ -11,7 +11,7 @@ A web application that uses AI to analyze messages for phishing, scams, and soci
 
 ## 🎯 Project Goals
 
-SafeMessage AI helps users determine if a message (email, text, etc.) is SAFE, UNSAFE, or UNKNOWN by analyzing:
+ScamBomb helps users determine if a message (email, text, etc.) is SAFE, UNSAFE, or UNKNOWN by analyzing:
 - Sender information
 - Message content and tone
 - Links and requests
@@ -91,7 +91,7 @@ In your Vercel project settings, add these environment variables:
 #### Create a Product and Price:
 1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
 2. Navigate to "Products"
-3. Create a new product (e.g., "SafeMessage AI Premium")
+3. Create a new product (e.g., "ScamBomb Premium")
 4. Add a recurring price: $5.00/month
 5. Copy the `price_xxx` ID to `STRIPE_PRICE_ID`
 
@@ -161,7 +161,7 @@ Analyzes a message for safety risks.
 **Response:**
 ```json
 {
-  "text": "🔍 SafeMessage AI Analysis\n\nVerdict: UNSAFE\n...",
+  "text": "🔍 ScamBomb Analysis\n\nVerdict: UNSAFE\n...",
   "verdict": "UNSAFE",
   "threatLevel": "85% (High)"
 }
