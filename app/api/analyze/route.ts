@@ -35,40 +35,19 @@ export async function POST(req: NextRequest) {
   ].join("\n");
 
   // Check if using local LM Studio or OpenAI
-  const useLocal = req.nextUrl.searchParams.get('local') === 'true' || process.env.USE_LOCAL_LM_STUDIO === 'true';
+  const forceLocal = req.nextUrl.searchParams.get('local') === 'true' || process.env.USE_LOCAL_LM_STUDIO === 'true';
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   let text: string;
+  let usedLocalFallback = false;
 
-  if (useLocal) {
-    // Use LM Studio local API
-    const lmStudioUrl = process.env.LM_STUDIO_URL || 'http://192.168.1.11:1234';
-    const response = await fetch(`${lmStudioUrl}/v1/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-oss-20b',
-        messages: [
-          { role: 'system', content: SAFE_MESSAGE_SYSTEM_PROMPT },
-          { role: 'user', content: userContent }
-        ],
-        temperature: 0.2,
-        max_tokens: 1000
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`LM Studio API error: ${response.status} ${response.statusText}`);
+  try {
+    if (forceLocal) {
+      throw new Error('Force local mode');
     }
 
-    const data = await response.json();
-    text = data.choices?.[0]?.message?.content ?? "No response from local model.";
-  } else {
-    // Create OpenAI client lazily to avoid build-time issues
+    // Try OpenAI first
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
-
-    // Use Chat Completions for deterministic formatting
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.2,
@@ -79,6 +58,42 @@ export async function POST(req: NextRequest) {
     });
 
     text = completion.choices[0]?.message?.content ?? "No response.";
+  } catch (error) {
+    // If OpenAI fails and we're in development, try LM Studio as fallback
+    if (isDevelopment || forceLocal) {
+      try {
+        console.log('OpenAI failed, trying LM Studio fallback...', error instanceof Error ? error.message : String(error));
+        const lmStudioUrl = process.env.LM_STUDIO_URL || 'http://192.168.1.11:1234';
+        const response = await fetch(`${lmStudioUrl}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'openai/gpt-oss-20b',
+            messages: [
+              { role: 'system', content: SAFE_MESSAGE_SYSTEM_PROMPT },
+              { role: 'user', content: userContent }
+            ],
+            temperature: 0.2,
+            max_tokens: 1000
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`LM Studio API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        text = data.choices?.[0]?.message?.content ?? "No response from local model.";
+        usedLocalFallback = true;
+      } catch (lmError) {
+        console.error('Both OpenAI and LM Studio failed:', lmError instanceof Error ? lmError.message : String(lmError));
+        throw new Error('Both OpenAI and local LM Studio are unavailable. Please check your API keys and LM Studio setup.');
+      }
+    } else {
+      throw error; // Re-throw original error if not in development
+    }
   }
 
   // Try to extract minimal structured bits for UI display

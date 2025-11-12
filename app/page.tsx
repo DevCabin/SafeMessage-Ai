@@ -24,7 +24,6 @@ export default function HomePage() {
   const [showAccessibility, setShowAccessibility] = useState(true);
   const [fontSize, setFontSize] = useState(16); // in px
   const [activeSection, setActiveSection] = useState<'input' | 'results'>('input');
-  const [useLocalModel, setUseLocalModel] = useState(false);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -55,7 +54,7 @@ export default function HomePage() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await fetch(`/api/analyze${useLocalModel ? '?local=true' : ''}`, {
+      const res = await fetch('/api/analyze', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sender, body, context, fingerprint })
