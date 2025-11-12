@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'meta-llama-3.1-8b-instruct',
+        model: 'openai/gpt-oss-20b',
         messages: [
           { role: 'system', content: SAFE_MESSAGE_SYSTEM_PROMPT },
           { role: 'user', content: userContent }
