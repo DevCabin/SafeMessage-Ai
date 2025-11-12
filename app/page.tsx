@@ -21,6 +21,7 @@ export default function HomePage() {
   const [fingerprint, setFingerprint] = useState<string | null>(null);
   const [highContrast, setHighContrast] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showAccessibility, setShowAccessibility] = useState(true);
   const [fontSize, setFontSize] = useState(16); // in px
   const [activeSection, setActiveSection] = useState<'input' | 'results'>('input');
 
@@ -141,57 +142,123 @@ export default function HomePage() {
       {/* Accessibility Controls */}
       <div style={{
         position: 'fixed',
-        top: '20px',
+        top: showAccessibility ? '20px' : 'auto',
+        bottom: showAccessibility ? 'auto' : '20px',
         left: '20px',
-        display: 'flex',
-        gap: '10px',
-        zIndex: 1000
+        zIndex: 1000,
+        background: highContrast ? '#ffffff' : 'rgba(15, 23, 42, 0.9)',
+        border: highContrast ? '3px solid #000000' : '2px solid rgba(51, 65, 85, 0.5)',
+        borderRadius: '10px',
+        padding: showAccessibility ? '15px' : '5px',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+        transition: 'all 0.3s ease'
       }}>
-        <button
-          onClick={() => setHighContrast(!highContrast)}
-          style={{
-            padding: '10px 15px',
-            borderRadius: '5px',
-            border: '2px solid white',
-            background: highContrast ? 'white' : 'transparent',
-            color: highContrast ? 'black' : 'white',
-            fontSize: '14px',
-            cursor: 'pointer',
-            minHeight: '44px'
-          }}
-        >
-          High Contrast
-        </button>
-        <button
-          onClick={() => setFontSize(Math.min(fontSize + 2, 28))}
-          style={{
-            padding: '10px 15px',
-            borderRadius: '5px',
-            border: '2px solid white',
-            background: 'transparent',
-            color: 'white',
-            fontSize: '14px',
-            cursor: 'pointer',
-            minHeight: '44px'
-          }}
-        >
-          + Font
-        </button>
-        <button
-          onClick={() => setFontSize(Math.max(fontSize - 2, 16))}
-          style={{
-            padding: '10px 15px',
-            borderRadius: '5px',
-            border: '2px solid white',
-            background: 'transparent',
-            color: 'white',
-            fontSize: '14px',
-            cursor: 'pointer',
-            minHeight: '44px'
-          }}
-        >
-          - Font
-        </button>
+        {showAccessibility ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'stretch' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '5px'
+            }}>
+              <span style={{
+                fontSize: '12px',
+                fontWeight: 'bold',
+                color: highContrast ? '#000000' : '#f1f5f9'
+              }}>
+                Accessibility
+              </span>
+              <button
+                onClick={() => setShowAccessibility(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: highContrast ? '#000000' : '#94a3b8',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  padding: '0',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <button
+              onClick={() => setHighContrast(!highContrast)}
+              style={{
+                width: '100%',
+                padding: '12px 15px',
+                borderRadius: '5px',
+                border: '2px solid white',
+                background: highContrast ? 'white' : 'transparent',
+                color: highContrast ? 'black' : 'white',
+                fontSize: '14px',
+                cursor: 'pointer',
+                minHeight: '44px',
+                fontWeight: 'bold'
+              }}
+            >
+              High Contrast
+            </button>
+            <button
+              onClick={() => setFontSize(Math.min(fontSize + 2, 28))}
+              style={{
+                width: '100%',
+                padding: '12px 15px',
+                borderRadius: '5px',
+                border: '2px solid white',
+                background: 'transparent',
+                color: 'white',
+                fontSize: '14px',
+                cursor: 'pointer',
+                minHeight: '44px',
+                fontWeight: 'bold'
+              }}
+            >
+              + Font Size
+            </button>
+            <button
+              onClick={() => setFontSize(Math.max(fontSize - 2, 16))}
+              style={{
+                width: '100%',
+                padding: '12px 15px',
+                borderRadius: '5px',
+                border: '2px solid white',
+                background: 'transparent',
+                color: 'white',
+                fontSize: '14px',
+                cursor: 'pointer',
+                minHeight: '44px',
+                fontWeight: 'bold'
+              }}
+            >
+              - Font Size
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowAccessibility(true)}
+            style={{
+              background: highContrast ? '#666666' : '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              padding: '8px 12px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontWeight: 'bold'
+            }}
+          >
+            ♿ Accessibility
+          </button>
+        )}
       </div>
 
       {/* Help Modal */}
