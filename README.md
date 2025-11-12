@@ -2,6 +2,13 @@
 
 A web application that uses AI to analyze messages for phishing, scams, and social engineering risks. Built with Next.js, powered by OpenAI's GPT models, and featuring a freemium model with Stripe payments.
 
+## 📊 Current Status
+
+- **Version**: 1.0.1
+- **Status**: Active Development
+- **Deployment**: Vercel (Production Ready)
+- **Linting**: ESLint configured with strict rules
+
 ## 🎯 Project Goals
 
 SafeMessage AI helps users determine if a message (email, text, etc.) is SAFE, UNSAFE, or UNKNOWN by analyzing:
