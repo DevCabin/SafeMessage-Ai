@@ -339,13 +339,30 @@ export default function HomePage() {
           textAlign: 'center',
           marginBottom: '2rem'
         }}>
-          <Image
-            src="/logo.png"
-            alt="ScamBomb"
-            width={150}
-            height={150}
-            style={{ maxHeight: '62px', width: 'auto', marginBottom: '1rem' }}
-          />
+          <a
+            href="https://scambomb.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              textDecoration: 'none',
+              color: 'inherit'
+            }}
+          >
+            <Image
+              src="/logo.png"
+              alt="ScamBomb"
+              width={150}
+              height={150}
+              style={{
+                maxHeight: '62px',
+                width: 'auto',
+                marginBottom: '1rem',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease'
+              }}
+            />
+          </a>
 
         </div>
 
