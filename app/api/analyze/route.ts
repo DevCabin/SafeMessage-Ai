@@ -4,7 +4,6 @@ import { SAFE_MESSAGE_SYSTEM_PROMPT } from "@/lib/safeMessagePrompt";
 import { getOrCreateUid } from "../_session";
 import { getKV } from "@/lib/kv";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 const FREE_LIMIT = 5;
 
 export async function POST(req: NextRequest) {
@@ -34,6 +33,9 @@ export async function POST(req: NextRequest) {
     `Message Body: ${body}`,
     `Context: ${context || "(not provided)"}`
   ].join("\n");
+
+  // Create OpenAI client lazily to avoid build-time issues
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
   // Use Chat Completions for deterministic formatting
   const completion = await openai.chat.completions.create({
