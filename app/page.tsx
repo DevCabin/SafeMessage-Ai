@@ -276,7 +276,7 @@ export default function HomePage() {
             alt="ScamBomb"
             width={150}
             height={150}
-            style={{ maxHeight: '100px', width: 'auto', marginBottom: '1rem' }}
+            style={{ maxHeight: '62px', width: 'auto', marginBottom: '1rem' }}
           />
 
         </div>
