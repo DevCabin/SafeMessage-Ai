@@ -1,8 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { quickScan } from "@/lib/redFlags";
+
+// Debounce utility
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  return function executedFunction(...args: Parameters<T>) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 type Analysis = {
   verdict: "SAFE" | "UNSAFE" | "UNKNOWN";
@@ -24,6 +38,7 @@ export default function HomePage() {
   const [showAccessibility, setShowAccessibility] = useState(true);
   const [fontSize, setFontSize] = useState(16); // in px
   const [activeSection, setActiveSection] = useState<'input' | 'results'>('input');
+  const [redFlag, setRedFlag] = useState<string | null>(null);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -49,6 +64,20 @@ export default function HomePage() {
       }).then(r => r.json()).then(setUsage).catch(() => {});
     }
   }, [fingerprint]);
+
+  // Debounced red flag check
+  const debouncedCheck = useMemo(
+    () =>
+      debounce((txt: string) => {
+        const hit = quickScan(txt);
+        setRedFlag(hit ? (typeof hit === 'string' ? hit : hit.source) : null);
+      }, 500),
+    []
+  );
+
+  useEffect(() => {
+    debouncedCheck(body);
+  }, [body, debouncedCheck]);
 
   const analyze = async () => {
     setLoading(true);
@@ -475,6 +504,54 @@ export default function HomePage() {
                     minHeight: '120px'
                   }}
                 />
+
+                {redFlag && (
+                  <div style={{
+                    marginTop: '15px',
+                    padding: '15px 20px',
+                    background: highContrast ? '#ffcccc' : '#ff6b6b',
+                    color: highContrast ? '#000000' : 'white',
+                    borderRadius: '10px',
+                    border: highContrast ? '3px solid #000000' : '2px solid rgba(239, 68, 68, 0.5)',
+                    fontSize: baseFontSize,
+                    fontWeight: 'bold',
+                    textAlign: 'center'
+                  }}>
+                    ⚠️ Red-flag phrase detected: <strong>{redFlag}</strong> – continue to full AI scan?
+                    <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                      <button
+                        onClick={() => setRedFlag(null)}
+                        style={{
+                          padding: '8px 15px',
+                          borderRadius: '5px',
+                          border: 'none',
+                          background: highContrast ? '#ffffff' : '#22c55e',
+                          color: highContrast ? '#000000' : 'white',
+                          fontSize: baseFontSize,
+                          fontWeight: 'bold',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Continue anyway
+                      </button>
+                      <button
+                        onClick={() => setBody('')}
+                        style={{
+                          padding: '8px 15px',
+                          borderRadius: '5px',
+                          border: 'none',
+                          background: highContrast ? '#666666' : '#6b7280',
+                          color: 'white',
+                          fontSize: baseFontSize,
+                          fontWeight: 'bold',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Edit message
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
 
