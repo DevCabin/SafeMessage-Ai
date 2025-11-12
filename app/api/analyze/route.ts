@@ -97,12 +97,28 @@ export async function POST(req: NextRequest) {
   }
 
   // Try to extract minimal structured bits for UI display
-  const verdictMatch = text.match(/Verdict:\s*(SAFE|UNSAFE|UNKNOWN)/i);
-  const threatMatch = text.match(/Threat Level:\s*([^\n]+)/i);
+  const verdictMatch = text.match(/Verdict:\s*(SAFE|UNSAFE|UNKNOWN|UNSURE)/i);
+  const threatMatch = text.match(/Threat Level:\s*(\d+)%/i);
+
+  let rawVerdict = verdictMatch?.[1]?.toUpperCase() ?? "UNKNOWN";
+  const threatLevel = threatMatch?.[1] ?? "0";
+  const threatPercentage = parseInt(threatLevel);
+
+  // Convert "UNSURE" to "UNKNOWN" for consistency
+  if (rawVerdict === "UNSURE") {
+    rawVerdict = "UNKNOWN";
+  }
+
+  // Override verdict: anything 75%+ should be UNSAFE for safety
+  if (threatPercentage >= 75) {
+    rawVerdict = "UNSAFE";
+  }
+
+  const verdict = rawVerdict as "SAFE" | "UNSAFE" | "UNKNOWN";
 
   return NextResponse.json({
     text,
-    verdict: (verdictMatch?.[1]?.toUpperCase() ?? "UNKNOWN") as "SAFE" | "UNSAFE" | "UNKNOWN",
-    threatLevel: threatMatch?.[1] ?? "N/A"
+    verdict,
+    threatLevel: threatMatch ? `${threatPercentage}%` : "N/A"
   });
 }

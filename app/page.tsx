@@ -69,7 +69,13 @@ export default function HomePage() {
   const debouncedCheck = useMemo(
     () =>
       debounce((txt: string) => {
+        console.log('🔍 ScamBomb: Running local red flag scan...');
         const hit = quickScan(txt);
+        if (hit) {
+          console.log('🚨 ScamBomb: Red flag detected:', hit);
+        } else {
+          console.log('✅ ScamBomb: No red flags found in local scan');
+        }
         setRedFlag(hit ? (typeof hit === 'string' ? hit : hit.source) : null);
       }, 500),
     []
@@ -517,7 +523,7 @@ export default function HomePage() {
                     fontWeight: 'bold',
                     textAlign: 'center'
                   }}>
-                    ⚠️ Red-flag phrase detected: <strong>{redFlag}</strong> – continue to full AI scan?
+                    ⚠️ Red-flag phrase detected: <strong>{redFlag}</strong> – should we BOMB this message? or would you like to proceed to the full AI scan?
                     <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
                       <button
                         onClick={() => setRedFlag(null)}
