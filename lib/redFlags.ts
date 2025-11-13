@@ -23,7 +23,7 @@ export const redFlagPatterns = [
   'your computer is infected','virus detected','suspicious activity','login attempt blocked','account breached'
 ];
 
-export function quickScan(text) {
+export function quickScan(text: string): string | RegExp | null {
   if (!text) return null;
   const t = text.toLowerCase();
   return redFlagPatterns.find(p =>
