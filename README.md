@@ -220,6 +220,10 @@ For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
 
+### v1.0.4 (2025-11-12)
+- **Disclaimer**: Updated footer disclaimer with memorable "When in doubt... DON'T!" message
+- **Legal Enhancement**: Improved user guidance with clear safety messaging
+
 ### v1.0.3 (2025-11-12)
 - **Footer**: Added copyright notice and legal disclaimer to app footer
 - **UI Enhancement**: Improved app completeness with professional footer section

@@ -1143,7 +1143,8 @@ export default function HomePage() {
             <p style={{ margin: 0, fontSize: '14px' }}>
               <strong>Disclaimer:</strong> ScamBomb provides educational guidance and risk signals.
               It does not provide legal, financial, or security guarantees.
-              Always verify via official channels and use your best judgment.
+              Always verify via official channels and remember:<br/>
+              <strong>When in doubt... DON'T!</strong>
             </p>
           </div>
         </footer>
