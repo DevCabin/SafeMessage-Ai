@@ -217,3 +217,23 @@ If you encounter issues:
 4. Check Vercel deployment logs
 
 For questions, please open an issue on GitHub.
+
+## 📝 CHANGELOG
+
+### v1.0.2 (2025-11-12)
+- **Payment System**: Added support for multiple pricing plans (monthly/annual)
+- **Stripe Integration**: Updated checkout API to accept different price IDs
+- **Build Fix**: Resolved Vercel deployment issues with TypeScript imports
+
+### v1.0.1 (2025-11-12)
+- **Red-Flag Detection**: Implemented instant client-side scam pattern scanning
+- **UI Enhancements**: Added collapsible accordion sections and accessibility features
+- **Typing Animation**: ChatGPT-style animated text reveal for analysis results
+- **Mobile Optimization**: Responsive design with touch-friendly controls
+- **Performance**: <2ms red-flag detection with 500+ patterns
+
+### v1.0.0 (2025-11-12)
+- **Initial Release**: Core AI message analysis functionality
+- **Freemium Model**: 5 free analyses per device, Stripe payment integration
+- **Modern UI**: Dark theme with professional design
+- **Production Ready**: Vercel deployment with KV database
