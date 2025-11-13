@@ -572,15 +572,15 @@ export default function HomePage() {
                   <div style={{
                     marginTop: '15px',
                     padding: '15px 20px',
-                    background: highContrast ? '#ffcccc' : '#ff6b6b',
-                    color: highContrast ? '#000000' : 'white',
+                    background: 'transparent',
+                    color: highContrast ? '#000000' : '#ff6b6b',
                     borderRadius: '10px',
-                    border: highContrast ? '3px solid #000000' : '2px solid rgba(239, 68, 68, 0.5)',
+                    border: highContrast ? '5px solid #000000' : '5px solid #ff6b6b',
                     fontSize: baseFontSize,
                     fontWeight: 'bold',
                     textAlign: 'center'
                   }}>
-                    ⚠️ Red-flag phrase detected: <strong>{redFlag}</strong> – should we BOMB this message? or would you like to proceed to the full AI scan?
+                    <span style={{ fontSize: '2em' }}>⚠️</span> Red-flag phrase detected: <strong>{redFlag}</strong> – should we BOMB this message? or would you like to proceed to the full AI scan?
                     <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
                       <button
                         onClick={async () => {
@@ -784,14 +784,15 @@ export default function HomePage() {
                   <div style={{
                     marginBottom: '2rem',
                     padding: '20px',
-                    background: highContrast ? '#ffcccc' : '#ff6b6b',
-                    color: highContrast ? '#000000' : 'white',
+                    background: 'transparent',
+                    color: highContrast ? '#000000' : '#ff6b6b',
                     borderRadius: '10px',
+                    border: highContrast ? '5px solid #000000' : '5px solid #ff6b6b',
                     fontSize: largeFontSize,
                     fontWeight: 'bold',
                     textAlign: 'center'
                   }}>
-                    ⚠️ Warning: This message appears to be dangerous. Do not click any links or provide personal information. Delete this message immediately.
+                    <span style={{ fontSize: '2em' }}>⚠️</span> Warning: This message appears to be dangerous. Do not click any links or provide personal information. Delete this message immediately.
                   </div>
                 )}
 
