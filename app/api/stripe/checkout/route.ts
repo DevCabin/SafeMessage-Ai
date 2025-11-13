@@ -17,13 +17,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Site URL not configured" }, { status: 500 });
     }
 
-    const { email, fingerprint } = await req.json().catch(() => ({}));
+    const { email, fingerprint, productId, plan } = await req.json().catch(() => ({}));
     const uid = await getOrCreateUid(fingerprint);
+
+    // Determine price ID based on plan or provided productId
+    let priceId = productId;
+    if (!priceId) {
+      if (plan === 'annual' && process.env.STRIPE_ANNUAL_PRICE_ID) {
+        priceId = process.env.STRIPE_ANNUAL_PRICE_ID;
+      } else {
+        priceId = process.env.STRIPE_PRICE_ID;
+      }
+    }
+
+    if (!priceId) {
+      return NextResponse.json({ error: "No price ID available" }, { status: 500 });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer_email: email || undefined,
-      line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=cancel`,
     metadata: { uid },

@@ -86,7 +86,8 @@ In your Vercel project settings, add these environment variables:
 |----------|-------|-------------|
 | `OPENAI_API_KEY` | `sk-...` | Your OpenAI API key |
 | `STRIPE_SECRET_KEY` | `sk_live_...` | Your Stripe secret key |
-| `STRIPE_PRICE_ID` | `price_...` | Your Stripe product price ID |
+| `STRIPE_PRICE_ID` | `price_...` | Your Stripe monthly product price ID |
+| `STRIPE_ANNUAL_PRICE_ID` | `price_...` | Your Stripe annual product price ID |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_...` | Stripe webhook signing secret |
 | `NEXT_PUBLIC_SITE_URL` | `https://your-app.vercel.app` | Your Vercel deployment URL |
 
@@ -219,6 +220,11 @@ If you encounter issues:
 For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
+
+### v1.0.8 (2025-11-12)
+- **Payment Fix**: Fixed annual button to use correct Stripe price ID via `STRIPE_ANNUAL_PRICE_ID`
+- **API Enhancement**: Added plan-based price selection in checkout API
+- **Environment Variables**: Added `STRIPE_ANNUAL_PRICE_ID` for annual pricing
 
 ### v1.0.7 (2025-11-12)
 - **Button Styling**: Updated upgrade button padding to `8px 12px` for better consistency
