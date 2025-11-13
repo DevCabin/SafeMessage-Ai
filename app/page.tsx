@@ -100,9 +100,16 @@ export default function HomePage() {
       return;
     }
 
-    // No red flags found - proceed to AI analysis and open results section
-    console.log('✅ ScamBomb: Local scan passed - proceeding to AI analysis');
-    setActiveSection('results'); // Only open results when proceeding to AI
+    // No red flags found - proceed to AI analysis
+    await proceedWithAIAnalysis();
+  };
+
+  const proceedWithAIAnalysis = async () => {
+    setLoading(true);
+    setResult(null);
+    setActiveSection('results'); // Open results section for AI analysis
+
+    console.log('✅ ScamBomb: Proceeding to AI analysis...');
 
     try {
       const res = await fetch('/api/analyze', {
@@ -542,7 +549,10 @@ export default function HomePage() {
                     ⚠️ Red-flag phrase detected: <strong>{redFlag}</strong> – should we BOMB this message? or would you like to proceed to the full AI scan?
                     <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
                       <button
-                        onClick={() => setRedFlag(null)}
+                        onClick={async () => {
+                          setRedFlag(null);
+                          await proceedWithAIAnalysis();
+                        }}
                         style={{
                           padding: '8px 15px',
                           borderRadius: '5px',
@@ -554,10 +564,16 @@ export default function HomePage() {
                           cursor: 'pointer'
                         }}
                       >
-                        Continue anyway
+                        Full AI Scan
                       </button>
                       <button
-                        onClick={() => setBody('')}
+                        onClick={() => {
+                          setRedFlag(null);
+                          setBody('');
+                          setSender('');
+                          setResult(null);
+                          setActiveSection('input');
+                        }}
                         style={{
                           padding: '8px 15px',
                           borderRadius: '5px',
@@ -569,7 +585,7 @@ export default function HomePage() {
                           cursor: 'pointer'
                         }}
                       >
-                        Edit message
+                        💣 BOMB it!
                       </button>
                     </div>
                   </div>
