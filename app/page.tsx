@@ -979,8 +979,8 @@ export default function HomePage() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '4px',
-                      minHeight: '60px',
-                      minWidth: '120px'
+                      minHeight: '55px',
+                      minWidth: '175px'
                     }}
                   >
                     <div>⚡ Annual</div>
@@ -1021,13 +1021,31 @@ export default function HomePage() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '4px',
-                      minHeight: '60px',
-                      minWidth: '120px'
+                      minHeight: '55px',
+                      minWidth: '175px'
                     }}
                   >
                     <div>⚡ Monthly</div>
                     <div style={{ fontSize: '14px', opacity: 0.9 }}>$5/month</div>
                   </button>
+                </div>
+              )}
+
+              {/* Guarantee Text */}
+              {!usage.premium && (
+                <div style={{
+                  marginTop: '1rem',
+                  textAlign: 'center',
+                  fontSize: baseFontSize,
+                  color: highContrast ? '#ffffff' : '#94a3b8',
+                  lineHeight: 1.5
+                }}>
+                  <p style={{ margin: 0, fontWeight: 'bold' }}>
+                    🔒 <strong>30-Day Money-Back Guarantee</strong>
+                  </p>
+                  <p style={{ margin: '0.5rem 0 0', fontSize: '14px' }}>
+                    Not satisfied? Get a full refund within 30 days, no questions asked.
+                  </p>
                 </div>
               )}
 

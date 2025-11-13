@@ -220,6 +220,14 @@ For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
 
+### v1.0.6 (2025-11-12)
+- **Guarantee Text**: Added 30-day money-back guarantee below upgrade buttons
+- **Trust Building**: Enhanced user confidence with clear refund policy
+
+### v1.0.5 (2025-11-12)
+- **UI Enhancement**: Updated upgrade button dimensions (55px height, 175px width) for better consistency
+- **Button Styling**: Improved visual hierarchy and touch targets for pricing buttons
+
 ### v1.0.4 (2025-11-12)
 - **Disclaimer**: Updated footer disclaimer with memorable "When in doubt... DON'T!" message
 - **Legal Enhancement**: Improved user guidance with clear safety messaging
