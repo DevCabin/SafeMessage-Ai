@@ -97,9 +97,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Try to extract minimal structured bits for UI display
-  // More robust regex to handle markdown formatting and variations
-  const verdictMatch = text.match(/Verdict:\s*\*?\*?(SAFE|UNSAFE|UNKNOWN|UNSURE)/i);
-  const threatMatch = text.match(/Threat Level:\s*\*?\*?(\d+)%/i);
+  // Even more robust regex to handle various AI response formats
+  const verdictMatch = text.match(/(?:Verdict:).*?(SAFE|UNSAFE|UNKNOWN|UNSURE)/i);
+  const threatMatch = text.match(/(?:Threat Level:).*?(\d+)%/i);
 
   let rawVerdict = verdictMatch?.[1]?.toUpperCase() ?? "UNKNOWN";
   const threatLevel = threatMatch?.[1] ?? "0";
