@@ -48,6 +48,8 @@ export default function HomePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [ocrLoading, setOcrLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<'email' | 'text'>('email');
+  const [showScreenshotHelp, setShowScreenshotHelp] = useState(false);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -455,6 +457,101 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Screenshot Help Modal */}
+      {showScreenshotHelp && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000
+        }}>
+          <div style={{
+            background: highContrast ? '#ffffff' : '#1e293b',
+            color: highContrast ? '#000000' : 'white',
+            padding: '30px',
+            borderRadius: '15px',
+            maxWidth: '700px',
+            fontSize: largeFontSize,
+            textAlign: 'center'
+          }}>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>📸 How to Take a Screenshot</h2>
+            <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+              {/* iPhone Instructions */}
+              <div style={{
+                flex: '1',
+                minWidth: '250px',
+                padding: '20px',
+                background: highContrast ? '#f0f0f0' : 'rgba(30, 41, 59, 0.5)',
+                borderRadius: '10px',
+                textAlign: 'left'
+              }}>
+                <h3 style={{ marginTop: 0, color: highContrast ? '#000000' : '#22c55e' }}>📱 iPhone</h3>
+                <ol style={{ lineHeight: 1.8, margin: 0, paddingLeft: '20px' }}>
+                  <li>Open the suspicious text message</li>
+                  <li>Press and hold the <strong>Side button</strong> (right edge)</li>
+                  <li>While holding, quickly press the <strong>Volume Up button</strong></li>
+                  <li>Release both buttons</li>
+                  <li>The screenshot will appear as a thumbnail</li>
+                </ol>
+                <p style={{ marginTop: '15px', fontSize: baseFontSize, color: highContrast ? '#000000' : '#94a3b8' }}>
+                  <em>Alternative: Swipe up from the bottom corner with your palm</em>
+                </p>
+              </div>
+
+              {/* Android Instructions */}
+              <div style={{
+                flex: '1',
+                minWidth: '250px',
+                padding: '20px',
+                background: highContrast ? '#f0f0f0' : 'rgba(30, 41, 59, 0.5)',
+                borderRadius: '10px',
+                textAlign: 'left'
+              }}>
+                <h3 style={{ marginTop: 0, color: highContrast ? '#000000' : '#22c55e' }}>🤖 Android</h3>
+                <ol style={{ lineHeight: 1.8, margin: 0, paddingLeft: '20px' }}>
+                  <li>Open the suspicious text message</li>
+                  <li>Press and hold the <strong>Power button</strong> + <strong>Volume Down button</strong> simultaneously</li>
+                  <li>Hold for 1-2 seconds</li>
+                  <li>Release both buttons</li>
+                  <li>You'll see a screenshot notification</li>
+                </ol>
+                <p style={{ marginTop: '15px', fontSize: baseFontSize, color: highContrast ? '#000000' : '#94a3b8' }}>
+                  <em>Note: Button combinations may vary by device manufacturer</em>
+                </p>
+              </div>
+            </div>
+            <div style={{ marginTop: '20px', padding: '15px', background: highContrast ? '#e0e0e0' : 'rgba(71, 85, 105, 0.3)', borderRadius: '8px' }}>
+              <p style={{ margin: 0, fontSize: baseFontSize, fontWeight: 'bold' }}>
+                💡 Tip: Make sure the entire suspicious message is visible in your screenshot for the best analysis.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowScreenshotHelp(false)}
+              style={{
+                padding: '15px 30px',
+                borderRadius: '10px',
+                border: 'none',
+                background: highContrast ? '#000000' : '#22c55e',
+                color: highContrast ? '#ffffff' : 'white',
+                fontSize: largeFontSize,
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                marginTop: '20px',
+                minHeight: buttonHeight
+              }}
+            >
+              Got it! 📸
+            </button>
+          </div>
+        </div>
+      )}
+
       <main style={{
         maxWidth: 900,
         margin: '0 auto',
@@ -543,6 +640,192 @@ export default function HomePage() {
               Paste any suspicious message to check for potential threats
             </p>
 
+            {/* Message Type Toggle */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: '30px'
+            }}>
+              <div style={{
+                display: 'flex',
+                background: highContrast ? '#ffffff' : 'rgba(30, 41, 59, 0.8)',
+                borderRadius: '50px',
+                padding: '5px',
+                border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
+                position: 'relative'
+              }}>
+                <button
+                  onClick={() => setMessageType('email')}
+                  style={{
+                    padding: '15px 30px',
+                    borderRadius: '45px',
+                    border: 'none',
+                    background: messageType === 'email' ? (highContrast ? '#000000' : '#22c55e') : 'transparent',
+                    color: messageType === 'email' ? (highContrast ? '#ffffff' : 'white') : (highContrast ? '#000000' : '#94a3b8'),
+                    fontSize: largeFontSize,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    minWidth: '150px',
+                    zIndex: 2
+                  }}
+                >
+                  📧 Email
+                </button>
+                <button
+                  onClick={() => setMessageType('text')}
+                  style={{
+                    padding: '15px 30px',
+                    borderRadius: '45px',
+                    border: 'none',
+                    background: messageType === 'text' ? (highContrast ? '#000000' : '#22c55e') : 'transparent',
+                    color: messageType === 'text' ? (highContrast ? '#ffffff' : 'white') : (highContrast ? '#000000' : '#94a3b8'),
+                    fontSize: largeFontSize,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    minWidth: '150px',
+                    zIndex: 2
+                  }}
+                >
+                  📱 Text Message
+                </button>
+              </div>
+            </div>
+
+            {/* Image Upload Section - Only show for Text Message */}
+            {messageType === 'text' && (
+              <div style={{
+                marginBottom: '20px',
+                opacity: messageType === 'text' ? 1 : 0,
+                transform: messageType === 'text' ? 'translateY(0)' : 'translateY(-10px)',
+                transition: 'all 0.3s ease-in-out'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  marginBottom: '10px'
+                }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: largeFontSize,
+                    fontWeight: 600,
+                    color: highContrast ? '#000000' : '#f1f5f9',
+                    margin: 0
+                  }}>
+                    📸 Upload Screenshot (OCR)
+                  </label>
+                  <button
+                    onClick={() => setShowScreenshotHelp(true)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: highContrast ? '#000000' : '#94a3b8',
+                      fontSize: '18px',
+                      cursor: 'pointer',
+                      padding: '5px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '30px',
+                      height: '30px'
+                    }}
+                    title="How to take a screenshot"
+                  >
+                    ❓
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleImageUpload}
+                    style={{
+                      padding: '10px',
+                      borderRadius: '5px',
+                      border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
+                      background: highContrast ? '#ffffff' : 'rgba(30, 41, 59, 0.8)',
+                      color: highContrast ? '#000000' : 'white',
+                      fontSize: baseFontSize,
+                      minHeight: '44px'
+                    }}
+                  />
+                  {imageFile && (
+                    <button
+                      onClick={() => imageFile && performOCR(imageFile)}
+                      disabled={ocrLoading}
+                      style={{
+                        padding: '10px 15px',
+                        borderRadius: '5px',
+                        border: 'none',
+                        background: ocrLoading ? (highContrast ? '#cccccc' : '#6b7280') : (highContrast ? '#000000' : '#22c55e'),
+                        color: highContrast ? '#ffffff' : 'white',
+                        fontSize: baseFontSize,
+                        cursor: ocrLoading ? 'not-allowed' : 'pointer',
+                        minHeight: '44px',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {ocrLoading ? '🔄 Extracting Text...' : '📝 Extract Text'}
+                    </button>
+                  )}
+                  {imageFile && (
+                    <button
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview(null);
+                      }}
+                      style={{
+                        padding: '10px 15px',
+                        borderRadius: '5px',
+                        border: 'none',
+                        background: highContrast ? '#666666' : '#6b7280',
+                        color: 'white',
+                        fontSize: baseFontSize,
+                        cursor: 'pointer',
+                        minHeight: '44px'
+                      }}
+                    >
+                      ❌ Clear
+                    </button>
+                  )}
+                </div>
+                {imagePreview && (
+                  <div style={{ marginTop: '10px' }}>
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{
+                        maxWidth: '300px',
+                        maxHeight: '200px',
+                        borderRadius: '5px',
+                        border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)'
+                      }}
+                    />
+                  </div>
+                )}
+                <p style={{
+                  fontSize: baseFontSize,
+                  color: highContrast ? '#000000' : '#94a3b8',
+                  marginTop: '5px',
+                  marginBottom: '5px'
+                }}>
+                  Upload a screenshot of a suspicious text message. We'll extract the text automatically.
+                </p>
+                <p style={{
+                  fontSize: '13px',
+                  color: highContrast ? '#000000' : '#64748b',
+                  marginTop: '0',
+                  marginBottom: '0'
+                }}>
+                  🔒 Your image is processed immediately and never stored or shared.
+                </p>
+              </div>
+            )}
+
             <div style={{ display: 'grid', gap: '20px' }}>
               <div>
                 <label style={{
@@ -601,97 +884,6 @@ export default function HomePage() {
                     minHeight: '120px'
                   }}
                 />
-
-                {/* Image Upload Section */}
-                <div style={{ marginTop: '20px' }}>
-                  <label style={{
-                    display: 'block',
-                    fontSize: largeFontSize,
-                    fontWeight: 600,
-                    color: highContrast ? '#000000' : '#f1f5f9',
-                    marginBottom: '10px'
-                  }}>
-                    📸 Or Upload an Image (OCR)
-                  </label>
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      onChange={handleImageUpload}
-                      style={{
-                        padding: '10px',
-                        borderRadius: '5px',
-                        border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
-                        background: highContrast ? '#ffffff' : 'rgba(30, 41, 59, 0.8)',
-                        color: highContrast ? '#000000' : 'white',
-                        fontSize: baseFontSize,
-                        minHeight: '44px'
-                      }}
-                    />
-                    {imageFile && (
-                      <button
-                        onClick={() => imageFile && performOCR(imageFile)}
-                        disabled={ocrLoading}
-                        style={{
-                          padding: '10px 15px',
-                          borderRadius: '5px',
-                          border: 'none',
-                          background: ocrLoading ? (highContrast ? '#cccccc' : '#6b7280') : (highContrast ? '#000000' : '#22c55e'),
-                          color: highContrast ? '#ffffff' : 'white',
-                          fontSize: baseFontSize,
-                          cursor: ocrLoading ? 'not-allowed' : 'pointer',
-                          minHeight: '44px',
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        {ocrLoading ? '🔄 Extracting Text...' : '📝 Extract Text'}
-                      </button>
-                    )}
-                    {imageFile && (
-                      <button
-                        onClick={() => {
-                          setImageFile(null);
-                          setImagePreview(null);
-                        }}
-                        style={{
-                          padding: '10px 15px',
-                          borderRadius: '5px',
-                          border: 'none',
-                          background: highContrast ? '#666666' : '#6b7280',
-                          color: 'white',
-                          fontSize: baseFontSize,
-                          cursor: 'pointer',
-                          minHeight: '44px'
-                        }}
-                      >
-                        ❌ Clear
-                      </button>
-                    )}
-                  </div>
-                  {imagePreview && (
-                    <div style={{ marginTop: '10px' }}>
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        style={{
-                          maxWidth: '300px',
-                          maxHeight: '200px',
-                          borderRadius: '5px',
-                          border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)'
-                        }}
-                      />
-                    </div>
-                  )}
-                  <p style={{
-                    fontSize: baseFontSize,
-                    color: highContrast ? '#000000' : '#94a3b8',
-                    marginTop: '5px',
-                    marginBottom: '0'
-                  }}>
-                    Upload a screenshot of a suspicious message. We'll extract the text automatically using OCR.
-                  </p>
-                </div>
 
                 {redFlag && (
                   <div style={{

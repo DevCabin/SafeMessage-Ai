@@ -4,7 +4,7 @@ A web application that uses AI to analyze messages for phishing, scams, and soci
 
 ## 📊 Current Status
 
-- **Version**: 2.0.0
+- **Version**: 2.0.1
 - **Status**: Production Ready
 - **Deployment**: Vercel (Production Ready)
 - **Linting**: ESLint configured with strict rules
@@ -25,8 +25,11 @@ ScamBomb helps users determine if a message (email, text, etc.) is SAFE, UNSAFE,
 - ⚡ Fast analysis powered by GPT-4o-mini
 - 🚨 Instant red-flag detection with smart warnings
 - 🎯 Interactive UI with collapsible sections
-- 📱 Mobile-responsive design
+- 📱 Mobile-responsive design with camera capture
 - ♿ High contrast and font size controls
+- 📧 Email/Text Message Toggle: Choose your input method
+- 📸 Screenshot OCR: Upload images for automatic text extraction
+- ❓ Built-in help: Screenshot instructions for iPhone/Android
 
 ## 🚀 Quick Start
 
@@ -229,6 +232,14 @@ If you encounter issues:
 For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
+
+### v2.0.1 (2025-11-13) - **FEATURE RELEASE**
+- **📧 Email/Text Toggle**: Added prominent toggle switch for message type selection (Email vs Text Message)
+- **📱 Conditional OCR**: Screenshot upload appears only when Text Message is selected with smooth animations
+- **❓ Screenshot Help**: Built-in help modal with step-by-step instructions for iPhone and Android screenshot capture
+- **🔒 Privacy Assurance**: Added clear messaging that images are processed immediately and never stored
+- **🎯 UX Enhancement**: Repositioned OCR upload field right below toggle for better user flow
+- **📝 User-Friendly Text**: Removed technical jargon ("OCR") and added privacy-focused messaging
 
 ### v2.0.0 (2025-11-13) - **MAJOR RELEASE**
 - **🚀 Image Upload & OCR**: Added screenshot analysis with Tesseract.js OCR for automatic text extraction
