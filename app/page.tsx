@@ -94,14 +94,16 @@ export default function HomePage() {
     const hasRedFlags = checkForRedFlags(body);
 
     if (hasRedFlags) {
-      // Red flags found - stop here and let user decide
+      // Red flags found - stop here and let user decide (stay in input section)
       console.log('🚨 ScamBomb: Red flags detected - waiting for user decision');
       setLoading(false);
       return;
     }
 
-    // No red flags found - proceed to AI analysis
+    // No red flags found - proceed to AI analysis and open results section
     console.log('✅ ScamBomb: Local scan passed - proceeding to AI analysis');
+    setActiveSection('results'); // Only open results when proceeding to AI
+
     try {
       const res = await fetch('/api/analyze', {
         method: "POST",
@@ -577,9 +579,8 @@ export default function HomePage() {
 
 
               <button
-                onClick={() => {
-                  setActiveSection('results');
-                  analyze();
+                onClick={async () => {
+                  await analyze();
                 }}
                 disabled={loading || !body.trim()}
                 style={{
