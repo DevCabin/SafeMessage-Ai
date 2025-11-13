@@ -40,6 +40,8 @@ export default function HomePage() {
   const [activeSection, setActiveSection] = useState<'input' | 'results'>('input');
   const [redFlag, setRedFlag] = useState<string | null>(null);
   const [scanPhase, setScanPhase] = useState<'idle' | 'quick-scan' | 'ai-scan'>('idle');
+  const [displayedText, setDisplayedText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -65,6 +67,29 @@ export default function HomePage() {
       }).then(r => r.json()).then(setUsage).catch(() => {});
     }
   }, [fingerprint]);
+
+  // Typing effect for AI analysis text
+  useEffect(() => {
+    if (result?.text && !isTyping) {
+      setIsTyping(true);
+      setDisplayedText('');
+      let index = 0;
+      const text = result.text;
+      const typeSpeed = 15; // milliseconds per character
+
+      const typeInterval = setInterval(() => {
+        if (index < text.length) {
+          setDisplayedText(text.slice(0, index + 1));
+          index++;
+        } else {
+          clearInterval(typeInterval);
+          setIsTyping(false);
+        }
+      }, typeSpeed);
+
+      return () => clearInterval(typeInterval);
+    }
+  }, [result?.text, isTyping]);
 
   // Red flag check function (moved to submission time)
   const checkForRedFlags = (text: string) => {
@@ -770,9 +795,22 @@ export default function HomePage() {
                   lineHeight: 1.8,
                   color: highContrast ? '#000000' : '#e2e8f0',
                   whiteSpace: 'pre-wrap',
-                  overflow: 'auto'
+                  overflow: 'auto',
+                  position: 'relative'
                 }}>
-                  {result.text}
+                  {displayedText || result.text}
+                  {isTyping && (
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: '2px',
+                        height: '1.2em',
+                        backgroundColor: highContrast ? '#000000' : '#22c55e',
+                        animation: 'blink 1s infinite',
+                        marginLeft: '2px'
+                      }}
+                    />
+                  )}
                 </div>
 
                 {result.verdict === 'SAFE' && (
@@ -1109,6 +1147,15 @@ export default function HomePage() {
           }
           to {
             transform: rotate(360deg);
+          }
+        }
+
+        @keyframes blink {
+          0%, 50% {
+            opacity: 1;
+          }
+          51%, 100% {
+            opacity: 0;
           }
         }
       `}</style>
