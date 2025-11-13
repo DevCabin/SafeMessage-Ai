@@ -580,25 +580,31 @@ export default function HomePage() {
                     fontWeight: 'bold',
                     textAlign: 'center'
                   }}>
-                    <span style={{ fontSize: '2em' }}>⚠️</span> Red-flag phrase detected: <strong>{redFlag}</strong> – should we BOMB this message? or would you like to proceed to the full AI scan?
-                    <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '2em' }}>⚠️</span> Red-flag phrase detected: <span style={{ color: highContrast ? '#ff0000' : '#ff6b6b' }}>"{redFlag}"</span>
+                    <br />
+                    <br />
+                    Have you seen enough? Are you ready to BOMB it, stay safe and never see this message again?
+                    <br />
+                    OR would you like to proceed with a FULL AI SCAN?
+                    <div style={{ marginTop: '15px', display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                       <button
                         onClick={async () => {
                           setRedFlag(null);
                           await proceedWithAIAnalysis();
                         }}
                         style={{
-                          padding: '8px 15px',
+                          padding: '10px 20px',
                           borderRadius: '5px',
                           border: '2px solid #F5C84C',
                           background: highContrast ? '#ffffff' : '#000000',
                           color: highContrast ? '#000000' : '#F5C84C',
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          minWidth: '140px'
                         }}
                       >
-                        Full AI Scan
+                        🔍 FULL AI SCAN
                       </button>
                       <button
                         onClick={() => {
@@ -609,17 +615,18 @@ export default function HomePage() {
                           setActiveSection('input');
                         }}
                         style={{
-                          padding: '8px 15px',
+                          padding: '10px 20px',
                           borderRadius: '5px',
                           border: 'none',
                           background: highContrast ? '#666666' : '#6b7280',
                           color: 'white',
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          minWidth: '140px'
                         }}
                       >
-                        💣 BOMB it!
+                        💣 BOMB IT!
                       </button>
                     </div>
                   </div>
