@@ -228,6 +228,11 @@ For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
 
+### v1.0.9 (2025-11-13)
+- **Debugging Enhancement**: Added comprehensive logging to checkout API for troubleshooting plan routing
+- **Documentation**: Created `.env.local.example` template and updated setup instructions
+- **Developer Guide**: Updated payment flow documentation with current implementation
+
 ### v1.0.8 (2025-11-12)
 - **Payment Fix**: Fixed annual button to use correct Stripe price ID via `STRIPE_ANNUAL_PRICE_ID`
 - **API Enhancement**: Added plan-based price selection in checkout API
