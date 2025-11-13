@@ -18,6 +18,11 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, fingerprint, productId, plan } = await req.json().catch(() => ({}));
+    console.log('Checkout request:', { email: email ? 'provided' : 'not provided', fingerprint: fingerprint ? 'provided' : 'not provided', productId, plan });
+    console.log('Environment variables:', {
+      STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID ? 'set' : 'not set',
+      STRIPE_ANNUAL_PRICE_ID: process.env.STRIPE_ANNUAL_PRICE_ID ? 'set' : 'not set'
+    });
     const uid = await getOrCreateUid(fingerprint);
 
     // Determine price ID based on plan or provided productId
@@ -25,9 +30,13 @@ export async function POST(req: NextRequest) {
     if (!priceId) {
       if (plan === 'annual' && process.env.STRIPE_ANNUAL_PRICE_ID) {
         priceId = process.env.STRIPE_ANNUAL_PRICE_ID;
+        console.log('Using annual price ID:', priceId);
       } else {
         priceId = process.env.STRIPE_PRICE_ID;
+        console.log('Using monthly price ID:', priceId);
       }
+    } else {
+      console.log('Using provided productId:', priceId);
     }
 
     if (!priceId) {

@@ -50,11 +50,17 @@ ScamBomb helps users determine if a message (email, text, etc.) is SAFE, UNSAFE,
    ```
 
 3. **Set up environment variables:**
-   Create `.env.local` with your API keys:
+   Copy `.env.local.example` to `.env.local` and fill in your API keys:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+   Then edit `.env.local` with your actual values:
    ```env
    OPENAI_API_KEY=sk-your-openai-api-key
    STRIPE_SECRET_KEY=sk_your-stripe-secret-key
-   STRIPE_PRICE_ID=price_your-stripe-price-id
+   STRIPE_PRICE_ID=price_your-monthly-stripe-price-id
+   STRIPE_ANNUAL_PRICE_ID=price_your-annual-stripe-price-id
    STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
    NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
@@ -143,6 +149,7 @@ User → Stripe Checkout → Webhook → Vercel KV → Premium Access
 ├── lib/                   # Utility libraries
 │   ├── kv.ts             # Database abstraction
 │   └── safeMessagePrompt.ts # AI system prompt
+├── .env.local.example     # Environment variables template
 ├── .env.local            # Local environment (not committed)
 ├── package.json          # Dependencies and scripts
 ├── tsconfig.json         # TypeScript configuration

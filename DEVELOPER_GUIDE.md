@@ -166,14 +166,33 @@ export async function GET() {
 
 ```typescript
 export async function POST(req: NextRequest) {
-  const { email } = await req.json();
-  const uid = await getOrCreateUid();
+  const { email, fingerprint, productId, plan } = await req.json().catch(() => ({}));
+  console.log('Checkout request:', { email: email ? 'provided' : 'not provided', fingerprint: fingerprint ? 'provided' : 'not provided', productId, plan });
+  console.log('Environment variables:', {
+    STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID ? 'set' : 'not set',
+    STRIPE_ANNUAL_PRICE_ID: process.env.STRIPE_ANNUAL_PRICE_ID ? 'set' : 'not set'
+  });
+  const uid = await getOrCreateUid(fingerprint);
+
+  // Determine price ID based on plan or provided productId
+  let priceId = productId;
+  if (!priceId) {
+    if (plan === 'annual' && process.env.STRIPE_ANNUAL_PRICE_ID) {
+      priceId = process.env.STRIPE_ANNUAL_PRICE_ID;
+      console.log('Using annual price ID:', priceId);
+    } else {
+      priceId = process.env.STRIPE_PRICE_ID;
+      console.log('Using monthly price ID:', priceId);
+    }
+  } else {
+    console.log('Using provided productId:', priceId);
+  }
 
   // Create Stripe checkout session
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer_email: email || undefined,
-    line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=cancel`,
     metadata: { uid }, // Pass device ID to webhook

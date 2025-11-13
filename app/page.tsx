@@ -951,7 +951,7 @@ export default function HomePage() {
                         const res = await fetch("/api/stripe/checkout", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ email, fingerprint, priceId: 'price_annual_plan_id_here' })
+                          body: JSON.stringify({ email, fingerprint, plan: 'annual' })
                         });
                         const data = await res.json();
                         if (data.url) {
