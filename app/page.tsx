@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Image from "next/image";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { quickScan } from "@/lib/redFlags";
@@ -42,7 +42,7 @@ export default function HomePage() {
   const [scanPhase, setScanPhase] = useState<'idle' | 'quick-scan' | 'ai-scan'>('idle');
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [hasStartedTyping, setHasStartedTyping] = useState(false);
+  const lastResultTextRef = useRef<string | null>(null);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -71,9 +71,9 @@ export default function HomePage() {
 
   // Typing effect for AI analysis text
   useEffect(() => {
-    if (result?.text && !hasStartedTyping) {
+    if (result?.text && result.text !== lastResultTextRef.current) {
       console.log('🎬 Starting typing animation for:', result.text.substring(0, 50) + '...');
-      setHasStartedTyping(true);
+      lastResultTextRef.current = result.text;
       setIsTyping(true);
       setDisplayedText('');
       let index = 0;
@@ -93,7 +93,7 @@ export default function HomePage() {
 
       return () => clearInterval(typeInterval);
     }
-  }, [result?.text, hasStartedTyping]);
+  }, [result?.text]);
 
   // Red flag check function (moved to submission time)
   const checkForRedFlags = (text: string) => {
@@ -137,8 +137,8 @@ export default function HomePage() {
     setLoading(true);
     setResult(null);
     setDisplayedText('');
-    setHasStartedTyping(false);
     setIsTyping(false);
+    lastResultTextRef.current = null;
     setActiveSection('results'); // Open results section for AI analysis
 
     console.log('✅ ScamBomb: Proceeding to AI analysis...');
@@ -805,7 +805,7 @@ export default function HomePage() {
                   overflow: 'auto',
                   position: 'relative'
                 }}>
-                  {hasStartedTyping ? displayedText : ''}
+                  {displayedText}
                   {isTyping && (
                     <span
                       style={{
