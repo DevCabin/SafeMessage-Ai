@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import Image from "next/image";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { createWorker } from 'tesseract.js';
 import { quickScan } from "@/lib/redFlags";
 
 // Debounce utility
@@ -44,6 +45,9 @@ export default function HomePage() {
   const [isTyping, setIsTyping] = useState(false);
   const [fullText, setFullText] = useState('');
   const lastResultTextRef = useRef<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -108,6 +112,36 @@ export default function HomePage() {
       console.log('✅ ScamBomb: No red flags found in local scan');
       setRedFlag(null);
       return false;
+    }
+  };
+
+  // OCR function using Tesseract.js
+  const performOCR = async (file: File) => {
+    setOcrLoading(true);
+    try {
+      const worker = await createWorker('eng');
+      const { data: { text } } = await worker.recognize(file);
+      await worker.terminate();
+      console.log('📝 OCR completed, extracted text:', text.substring(0, 100) + '...');
+      setBody(prev => prev + (prev ? '\n\n' : '') + text.trim());
+      setImageFile(null);
+      setImagePreview(null);
+    } catch (error) {
+      console.error('OCR failed:', error);
+      alert('Failed to extract text from image. Please try again or paste the text manually.');
+    } finally {
+      setOcrLoading(false);
+    }
+  };
+
+  // Handle image file selection
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target?.result as string);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -380,7 +414,7 @@ export default function HomePage() {
             <h2 style={{ marginTop: 0, fontSize: '24px' }}>How to Use ScamBomb</h2>
             <p style={{ lineHeight: 1.6 }}>
               1. Enter the sender's information (email, phone, or name).<br/>
-              2. Paste the full message content.<br/>
+              2. Paste the full message content OR upload a screenshot for OCR.<br/>
               3. Add any additional context if available.<br/>
               4. Click "Analyze Message" and wait for results.<br/>
               5. Review the safety verdict and follow recommendations.
@@ -567,6 +601,97 @@ export default function HomePage() {
                     minHeight: '120px'
                   }}
                 />
+
+                {/* Image Upload Section */}
+                <div style={{ marginTop: '20px' }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: largeFontSize,
+                    fontWeight: 600,
+                    color: highContrast ? '#000000' : '#f1f5f9',
+                    marginBottom: '10px'
+                  }}>
+                    📸 Or Upload an Image (OCR)
+                  </label>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleImageUpload}
+                      style={{
+                        padding: '10px',
+                        borderRadius: '5px',
+                        border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
+                        background: highContrast ? '#ffffff' : 'rgba(30, 41, 59, 0.8)',
+                        color: highContrast ? '#000000' : 'white',
+                        fontSize: baseFontSize,
+                        minHeight: '44px'
+                      }}
+                    />
+                    {imageFile && (
+                      <button
+                        onClick={() => imageFile && performOCR(imageFile)}
+                        disabled={ocrLoading}
+                        style={{
+                          padding: '10px 15px',
+                          borderRadius: '5px',
+                          border: 'none',
+                          background: ocrLoading ? (highContrast ? '#cccccc' : '#6b7280') : (highContrast ? '#000000' : '#22c55e'),
+                          color: highContrast ? '#ffffff' : 'white',
+                          fontSize: baseFontSize,
+                          cursor: ocrLoading ? 'not-allowed' : 'pointer',
+                          minHeight: '44px',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {ocrLoading ? '🔄 Extracting Text...' : '📝 Extract Text'}
+                      </button>
+                    )}
+                    {imageFile && (
+                      <button
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview(null);
+                        }}
+                        style={{
+                          padding: '10px 15px',
+                          borderRadius: '5px',
+                          border: 'none',
+                          background: highContrast ? '#666666' : '#6b7280',
+                          color: 'white',
+                          fontSize: baseFontSize,
+                          cursor: 'pointer',
+                          minHeight: '44px'
+                        }}
+                      >
+                        ❌ Clear
+                      </button>
+                    )}
+                  </div>
+                  {imagePreview && (
+                    <div style={{ marginTop: '10px' }}>
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        style={{
+                          maxWidth: '300px',
+                          maxHeight: '200px',
+                          borderRadius: '5px',
+                          border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)'
+                        }}
+                      />
+                    </div>
+                  )}
+                  <p style={{
+                    fontSize: baseFontSize,
+                    color: highContrast ? '#000000' : '#94a3b8',
+                    marginTop: '5px',
+                    marginBottom: '0'
+                  }}>
+                    Upload a screenshot of a suspicious message. We'll extract the text automatically using OCR.
+                  </p>
+                </div>
 
                 {redFlag && (
                   <div style={{

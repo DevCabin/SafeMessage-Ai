@@ -1,6 +1,6 @@
 {
   "name": "safemessage-web",
-  "version": "1.0.8",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,6 +13,7 @@
     "@vercel/kv": "^1.0.1",
     "openai": "^4.58.1",
     "stripe": "^16.9.0",
+    "tesseract.js": "^6.0.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

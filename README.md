@@ -4,7 +4,7 @@ A web application that uses AI to analyze messages for phishing, scams, and soci
 
 ## 📊 Current Status
 
-- **Version**: 1.1.0
+- **Version**: 2.0.0
 - **Status**: Production Ready
 - **Deployment**: Vercel (Production Ready)
 - **Linting**: ESLint configured with strict rules
@@ -145,9 +145,11 @@ User → Stripe Checkout → Webhook → Vercel KV → Premium Access
 │   │   └── _session.ts    # Device session management
 │   ├── globals.css        # Global styles
 │   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Main UI
+│   └── page.tsx           # Main UI with OCR
 ├── lib/                   # Utility libraries
 │   ├── kv.ts             # Database abstraction
+│   ├── redFlags.ts       # Red-flag detection system
+│   ├── scamPatterns.ts   # Comprehensive threat database
 │   └── safeMessagePrompt.ts # AI system prompt
 ├── .env.local.example     # Environment variables template
 ├── .env.local            # Local environment (not committed)
@@ -227,6 +229,16 @@ If you encounter issues:
 For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
+
+### v2.0.0 (2025-11-13) - **MAJOR RELEASE**
+- **🚀 Image Upload & OCR**: Added screenshot analysis with Tesseract.js OCR for automatic text extraction
+- **🏗️ Scalable Pattern System**: Complete architectural overhaul with categorized threat database (`lib/scamPatterns.ts`)
+- **📱 Enhanced Mobile UX**: Camera capture support, larger touch targets, improved accessibility
+- **🔍 Advanced Catfishing Detection**: Added patterns for "are you there" and unsolicited checking messages
+- **⚡ Performance Optimization**: Streamlined red-flag detection with organized pattern categories
+- **📊 Threat Intelligence**: 100+ patterns across 11 categories (urgency, financial, authority, etc.)
+- **🔧 Developer Experience**: Comprehensive utility functions for pattern management
+- **🧹 Code Cleanup**: Removed unimplemented feedback commands, updated to modern TypeScript patterns
 
 ### v1.0.9 (2025-11-13)
 - **Debugging Enhancement**: Added comprehensive logging to checkout API for troubleshooting plan routing

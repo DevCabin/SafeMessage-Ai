@@ -1,28 +1,13 @@
-// Optimised for lightning client-side scan
-export const redFlagPatterns = [
-  // Urgency
-  'within 24 hours','within 24hrs','within 48 hours','immediate action','act now','urgent','expire soon','final notice','account will be closed','suspended indefinitely',
-  // Financial triggers
-  'gift card','giftcard','prepaid card','wire transfer','western union','moneygram','bitcoin','btc','ethereum','eth','send funds','pay a fee','release fee','processing fee',
-  // Authority spoof
-  'irs ','social security','ssa ','medicare ','fbi ','dea ','police department','court order','legal action','law enforcement','government grant','federal reserve',
-  // Sketchy URLs (regexes)
-  /\b(bit\.ly|tinyurl|tiny\.cc|t\.co|short\.link)\//i,
-  /https?:\/\/[^\/]*\.(ru|tk|ml|cf|top|xyz|click|download|stream)\//i,
-  // Generic scam lines
-  'congratulations you won','you have been selected','100% guaranteed','risk free','no upfront cost','make money fast','work from home','investment opportunity',
-  // Crypto
-  'double your bitcoin','multiply your crypto','send 1 get 2','guaranteed return','profit in 24 hours',
-  // Personal info
-  'confirm your ssn','verify your social','update your password','click here to verify','login to secure',
-  // Grandparent / romance
-  'grandchild in jail','need bail money','hospital payment','plane ticket money','i love you send money',
-  // Fake delivery
-  'missed delivery','redelivery fee','customs duty','shipping cost','package holding','ups fee','dhl fee',
-  // Tech support
-  'your computer is infected','virus detected','suspicious activity','login attempt blocked','account breached'
-];
+// Comprehensive scam pattern detection system
+// Uses the organized scamPatterns database for maintainable, scalable detection
 
+import { redFlagPatterns, scamPatterns, ScamPattern, getPatternsByCategory, getPatternsBySeverity, addPattern, removePattern } from './scamPatterns';
+
+/**
+ * Performs lightning-fast client-side scam pattern detection
+ * @param text - The message text to scan
+ * @returns The matching pattern (string or RegExp) or null if no matches
+ */
 export function quickScan(text: string): string | RegExp | null {
   if (!text) return null;
   const t = text.toLowerCase();
@@ -30,3 +15,29 @@ export function quickScan(text: string): string | RegExp | null {
     typeof p === 'string' ? t.includes(p) : p.test(t)
   ) || null;
 }
+
+/**
+ * Gets detailed information about a matched pattern
+ * @param text - The message text that was scanned
+ * @returns Detailed ScamPattern info or null
+ */
+export function getPatternDetails(text: string): ScamPattern | null {
+  if (!text) return null;
+  const t = text.toLowerCase();
+  return scamPatterns.find(p =>
+    typeof p.pattern === 'string' ? t.includes(p.pattern) : p.pattern.test(t)
+  ) || null;
+}
+
+// Re-export all scam pattern utilities
+export {
+  scamPatterns,
+  redFlagPatterns,
+  getPatternsByCategory,
+  getPatternsBySeverity,
+  addPattern,
+  removePattern
+};
+
+// Re-export the type
+export type { ScamPattern } from './scamPatterns';
