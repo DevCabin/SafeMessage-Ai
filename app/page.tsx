@@ -42,6 +42,7 @@ export default function HomePage() {
   const [scanPhase, setScanPhase] = useState<'idle' | 'quick-scan' | 'ai-scan'>('idle');
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [hasStartedTyping, setHasStartedTyping] = useState(false);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -70,7 +71,8 @@ export default function HomePage() {
 
   // Typing effect for AI analysis text
   useEffect(() => {
-    if (result?.text && !isTyping) {
+    if (result?.text && !isTyping && !hasStartedTyping) {
+      setHasStartedTyping(true);
       setIsTyping(true);
       setDisplayedText('');
       let index = 0;
@@ -89,7 +91,7 @@ export default function HomePage() {
 
       return () => clearInterval(typeInterval);
     }
-  }, [result?.text, isTyping]);
+  }, [result?.text, isTyping, hasStartedTyping]);
 
   // Red flag check function (moved to submission time)
   const checkForRedFlags = (text: string) => {
@@ -132,6 +134,9 @@ export default function HomePage() {
   const proceedWithAIAnalysis = async () => {
     setLoading(true);
     setResult(null);
+    setDisplayedText('');
+    setHasStartedTyping(false);
+    setIsTyping(false);
     setActiveSection('results'); // Open results section for AI analysis
 
     console.log('✅ ScamBomb: Proceeding to AI analysis...');
@@ -798,7 +803,7 @@ export default function HomePage() {
                   overflow: 'auto',
                   position: 'relative'
                 }}>
-                  {displayedText || result.text}
+                  {hasStartedTyping ? displayedText : ''}
                   {isTyping && (
                     <span
                       style={{
