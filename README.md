@@ -220,6 +220,10 @@ For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
 
+### v1.0.3 (2025-11-12)
+- **Footer**: Added copyright notice and legal disclaimer to app footer
+- **UI Enhancement**: Improved app completeness with professional footer section
+
 ### v1.0.2 (2025-11-12)
 - **Payment System**: Added support for multiple pricing plans (monthly/annual)
 - **Stripe Integration**: Updated checkout API to accept different price IDs

@@ -951,7 +951,7 @@ export default function HomePage() {
                         const res = await fetch("/api/stripe/checkout", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ email, fingerprint, productId: 'prod_TPb59dA7O3DvRa' })
+                          body: JSON.stringify({ email, fingerprint, priceId: 'price_annual_plan_id_here' })
                         });
                         const data = await res.json();
                         if (data.url) {
@@ -1120,6 +1120,33 @@ export default function HomePage() {
           </button>
         </div>
 
+        {/* Footer */}
+        <footer style={{
+          marginTop: '3rem',
+          padding: '2rem 0',
+          borderTop: highContrast ? '2px solid #ffffff' : '1px solid rgba(51, 65, 85, 0.3)',
+          textAlign: 'center',
+          fontSize: baseFontSize,
+          color: highContrast ? '#ffffff' : '#64748b'
+        }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <p style={{ margin: 0, fontWeight: 'bold' }}>
+              © 2025 ScamBomb. All rights reserved.
+            </p>
+          </div>
+          <div style={{
+            maxWidth: '600px',
+            margin: '0 auto',
+            padding: '0 1rem',
+            lineHeight: 1.6
+          }}>
+            <p style={{ margin: 0, fontSize: '14px' }}>
+              <strong>Disclaimer:</strong> ScamBomb provides educational guidance and risk signals.
+              It does not provide legal, financial, or security guarantees.
+              Always verify via official channels and use your best judgment.
+            </p>
+          </div>
+        </footer>
 
       </main>
 
