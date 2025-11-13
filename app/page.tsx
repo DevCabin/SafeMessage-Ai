@@ -42,6 +42,7 @@ export default function HomePage() {
   const [scanPhase, setScanPhase] = useState<'idle' | 'quick-scan' | 'ai-scan'>('idle');
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [fullText, setFullText] = useState('');
   const lastResultTextRef = useRef<string | null>(null);
 
   // Generate device fingerprint on mount
@@ -71,13 +72,13 @@ export default function HomePage() {
 
   // Typing effect for AI analysis text
   useEffect(() => {
-    if (result?.text && result.text !== lastResultTextRef.current) {
-      console.log('🎬 Starting typing animation for:', result.text.substring(0, 50) + '...');
-      lastResultTextRef.current = result.text;
+    if (fullText && fullText !== lastResultTextRef.current) {
+      console.log('🎬 Starting typing animation for:', fullText.substring(0, 50) + '...');
+      lastResultTextRef.current = fullText;
       setIsTyping(true);
       setDisplayedText('');
       let index = 0;
-      const text = result.text;
+      const text = fullText;
       const typeSpeed = 15; // milliseconds per character
 
       const typeInterval = setInterval(() => {
@@ -93,7 +94,7 @@ export default function HomePage() {
 
       return () => clearInterval(typeInterval);
     }
-  }, [result?.text]);
+  }, [fullText]);
 
   // Red flag check function (moved to submission time)
   const checkForRedFlags = (text: string) => {
@@ -165,6 +166,7 @@ export default function HomePage() {
 
       const data = await res.json();
       setResult(data);
+      setFullText(data.text);
       // Refresh usage with fingerprint after successful analysis
       if (fingerprint) {
         const u = await fetch("/api/usage", {
