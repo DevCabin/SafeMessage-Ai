@@ -220,6 +220,11 @@ For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
 
+### v1.0.7 (2025-11-12)
+- **Button Styling**: Updated upgrade button padding to `8px 12px` for better consistency
+- **Guarantee Text**: Updated to "No strings attached, 'cancel any time for any reason' guarantee"
+- **Trust Enhancement**: Improved guarantee messaging for stronger user confidence
+
 ### v1.0.6 (2025-11-12)
 - **Guarantee Text**: Added 30-day money-back guarantee below upgrade buttons
 - **Trust Building**: Enhanced user confidence with clear refund policy

@@ -970,7 +970,7 @@ export default function HomePage() {
                       background: highContrast ? '#ffff00' : '#F5C84C',
                       color: highContrast ? '#000000' : '#0B1324',
                       border: 'none',
-                      padding: '15px 20px',
+                      padding: '8px 12px',
                       borderRadius: '10px',
                       fontWeight: 700,
                       fontSize: baseFontSize,
@@ -1012,7 +1012,7 @@ export default function HomePage() {
                       background: highContrast ? '#ffff00' : '#F5C84C',
                       color: highContrast ? '#000000' : '#0B1324',
                       border: 'none',
-                      padding: '15px 20px',
+                      padding: '8px 12px',
                       borderRadius: '10px',
                       fontWeight: 700,
                       fontSize: baseFontSize,
@@ -1041,10 +1041,7 @@ export default function HomePage() {
                   lineHeight: 1.5
                 }}>
                   <p style={{ margin: 0, fontWeight: 'bold' }}>
-                    🔒 <strong>30-Day Money-Back Guarantee</strong>
-                  </p>
-                  <p style={{ margin: '0.5rem 0 0', fontSize: '14px' }}>
-                    Not satisfied? Get a full refund within 30 days, no questions asked.
+                    🔒 No strings attached, "cancel any time for any reason" guarantee.
                   </p>
                 </div>
               )}
