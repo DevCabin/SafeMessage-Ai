@@ -746,6 +746,21 @@ export default function HomePage() {
                   </div>
                 </div>
 
+                {result.verdict === 'UNSAFE' && (
+                  <div style={{
+                    marginBottom: '2rem',
+                    padding: '20px',
+                    background: highContrast ? '#ffcccc' : '#ff6b6b',
+                    color: highContrast ? '#000000' : 'white',
+                    borderRadius: '10px',
+                    fontSize: largeFontSize,
+                    fontWeight: 'bold',
+                    textAlign: 'center'
+                  }}>
+                    ⚠️ Warning: This message appears to be dangerous. Do not click any links or provide personal information. Delete this message immediately.
+                  </div>
+                )}
+
                 <div style={{
                   background: highContrast ? '#f0f0f0' : 'rgba(30, 41, 59, 0.8)',
                   border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
@@ -759,21 +774,6 @@ export default function HomePage() {
                 }}>
                   {result.text}
                 </div>
-
-                {result.verdict === 'UNSAFE' && (
-                  <div style={{
-                    marginTop: '20px',
-                    padding: '20px',
-                    background: highContrast ? '#ffcccc' : '#ff6b6b',
-                    color: highContrast ? '#000000' : 'white',
-                    borderRadius: '10px',
-                    fontSize: largeFontSize,
-                    fontWeight: 'bold',
-                    textAlign: 'center'
-                  }}>
-                    ⚠️ Warning: This message appears to be dangerous. Do not click any links or provide personal information. Delete this message immediately.
-                  </div>
-                )}
 
                 {result.verdict === 'SAFE' && (
                   <div style={{
