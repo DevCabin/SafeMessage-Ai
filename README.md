@@ -4,8 +4,8 @@ A web application that uses AI to analyze messages for phishing, scams, and soci
 
 ## 📊 Current Status
 
-- **Version**: 1.0.1
-- **Status**: Active Development
+- **Version**: 1.1.0
+- **Status**: Production Ready
 - **Deployment**: Vercel (Production Ready)
 - **Linting**: ESLint configured with strict rules
 
@@ -21,8 +21,12 @@ ScamBomb helps users determine if a message (email, text, etc.) is SAFE, UNSAFE,
 - ✅ Free tier: 5 message analyses per device
 - 💳 Premium tier: Unlimited analyses for $5/month
 - 🔒 Privacy-focused: No message content stored
-- 🎨 Modern dark UI
+- 🎨 Modern dark UI with accessibility features
 - ⚡ Fast analysis powered by GPT-4o-mini
+- 🚨 Instant red-flag detection with smart warnings
+- 🎯 Interactive UI with collapsible sections
+- 📱 Mobile-responsive design
+- ♿ High contrast and font size controls
 
 ## 🚀 Quick Start
 
