@@ -39,6 +39,7 @@ export default function HomePage() {
   const [fontSize, setFontSize] = useState(16); // in px
   const [activeSection, setActiveSection] = useState<'input' | 'results'>('input');
   const [redFlag, setRedFlag] = useState<string | null>(null);
+  const [scanPhase, setScanPhase] = useState<'idle' | 'quick-scan' | 'ai-scan'>('idle');
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -65,29 +66,42 @@ export default function HomePage() {
     }
   }, [fingerprint]);
 
-  // Debounced red flag check
-  const debouncedCheck = useMemo(
-    () =>
-      debounce((txt: string) => {
-        console.log('🔍 ScamBomb: Running local red flag scan...');
-        const hit = quickScan(txt);
-        if (hit) {
-          console.log('🚨 ScamBomb: Red flag detected:', hit);
-        } else {
-          console.log('✅ ScamBomb: No red flags found in local scan');
-        }
-        setRedFlag(hit ? (typeof hit === 'string' ? hit : hit.source) : null);
-      }, 500),
-    []
-  );
-
-  useEffect(() => {
-    debouncedCheck(body);
-  }, [body, debouncedCheck]);
+  // Red flag check function (moved to submission time)
+  const checkForRedFlags = (text: string) => {
+    console.log('🔍 ScamBomb: Running local red flag scan...');
+    const hit = quickScan(text);
+    if (hit) {
+      console.log('🚨 ScamBomb: Red flag detected:', hit);
+      setRedFlag(typeof hit === 'string' ? hit : hit.source);
+      return true;
+    } else {
+      console.log('✅ ScamBomb: No red flags found in local scan');
+      setRedFlag(null);
+      return false;
+    }
+  };
 
   const analyze = async () => {
     setLoading(true);
     setResult(null);
+
+    // First, run the quick local red flag scan
+    console.log('🔍 ScamBomb: Starting analysis with quick local scan...');
+
+    // Add a brief delay to show the loading state for the quick scan
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const hasRedFlags = checkForRedFlags(body);
+
+    if (hasRedFlags) {
+      // Red flags found - stop here and let user decide
+      console.log('🚨 ScamBomb: Red flags detected - waiting for user decision');
+      setLoading(false);
+      return;
+    }
+
+    // No red flags found - proceed to AI analysis
+    console.log('✅ ScamBomb: Local scan passed - proceeding to AI analysis');
     try {
       const res = await fetch('/api/analyze', {
         method: "POST",
@@ -596,7 +610,7 @@ export default function HomePage() {
                       borderRadius: '50%',
                       animation: 'spin 1s linear infinite'
                     }} />
-                    Analyzing Message...
+                    Quick scan for common scams...
                   </>
                 ) : (
                   <>
