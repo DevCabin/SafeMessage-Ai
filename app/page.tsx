@@ -71,7 +71,8 @@ export default function HomePage() {
 
   // Typing effect for AI analysis text
   useEffect(() => {
-    if (result?.text && !isTyping && !hasStartedTyping) {
+    if (result?.text && !hasStartedTyping) {
+      console.log('🎬 Starting typing animation for:', result.text.substring(0, 50) + '...');
       setHasStartedTyping(true);
       setIsTyping(true);
       setDisplayedText('');
@@ -86,12 +87,13 @@ export default function HomePage() {
         } else {
           clearInterval(typeInterval);
           setIsTyping(false);
+          console.log('✅ Typing animation completed');
         }
       }, typeSpeed);
 
       return () => clearInterval(typeInterval);
     }
-  }, [result?.text, isTyping, hasStartedTyping]);
+  }, [result?.text, hasStartedTyping]);
 
   // Red flag check function (moved to submission time)
   const checkForRedFlags = (text: string) => {
@@ -586,9 +588,9 @@ export default function HomePage() {
                         style={{
                           padding: '8px 15px',
                           borderRadius: '5px',
-                          border: 'none',
-                          background: highContrast ? '#ffffff' : '#22c55e',
-                          color: highContrast ? '#000000' : 'white',
+                          border: '2px solid #F5C84C',
+                          background: highContrast ? '#ffffff' : '#000000',
+                          color: highContrast ? '#000000' : '#F5C84C',
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
                           cursor: 'pointer'
