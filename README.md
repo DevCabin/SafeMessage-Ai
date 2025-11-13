@@ -4,7 +4,7 @@ A web application that uses AI to analyze messages for phishing, scams, and soci
 
 ## 📊 Current Status
 
-- **Version**: 2.0.1
+- **Version**: 2.0.2
 - **Status**: Production Ready
 - **Deployment**: Vercel (Production Ready)
 - **Linting**: ESLint configured with strict rules
@@ -26,10 +26,12 @@ ScamBomb helps users determine if a message (email, text, etc.) is SAFE, UNSAFE,
 - 🚨 Instant red-flag detection with smart warnings
 - 🎯 Interactive UI with collapsible sections
 - 📱 Mobile-responsive design with camera capture
-- ♿ High contrast and font size controls
+- ♿ Advanced accessibility: 75px square button with wheelchair icon, ARIA labels, high contrast & font controls
 - 📧 Email/Text Message Toggle: Choose your input method
 - 📸 Screenshot OCR: Upload images for automatic text extraction
 - ❓ Built-in help: Screenshot instructions for iPhone/Android
+- 💣 "Bomb It!" feature: Fun way to reject suspicious messages with animations
+- 🎉 Success modal with actionable next steps
 
 ## 🚀 Quick Start
 
@@ -232,6 +234,16 @@ If you encounter issues:
 For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
+
+### v2.0.2 (2025-11-13) - **UI/UX ENHANCEMENT RELEASE**
+- **♿ Accessibility Overhaul**: Redesigned accessibility menu with 75×75px square button featuring custom wheelchair icon
+- **🎨 Wheelchair Icon**: Created detailed SVG wheelchair with round wheels, proper proportions, and brand navy color (#0B1324)
+- **🔍 Menu Improvements**: Accessibility menu now starts closed, includes ARIA labels, hover effects, and better UX
+- **💛 Brand Consistency**: Updated bomb modal button to brand yellow (#F5C84C) for visual consistency
+- **📐 Text Centering**: Fixed guarantee text centering with proper width constraints
+- **🔗 URL Correction**: Fixed blog URL from incorrect subdomain to correct `https://www.scambomb.com/blog`
+- **🎯 Enhanced Features**: Improved "Bomb It!" animation with ref-based implementation and better error handling
+- **📱 Responsive Design**: Better mobile experience with improved touch targets and spacing
 
 ### v2.0.1 (2025-11-13) - **FEATURE RELEASE**
 - **📧 Email/Text Toggle**: Added prominent toggle switch for message type selection (Email vs Text Message)

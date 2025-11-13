@@ -36,7 +36,7 @@ export default function HomePage() {
   const [fingerprint, setFingerprint] = useState<string | null>(null);
   const [highContrast, setHighContrast] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [showAccessibility, setShowAccessibility] = useState(true);
+  const [showAccessibility, setShowAccessibility] = useState(false);
   const [fontSize, setFontSize] = useState(16); // in px
   const [activeSection, setActiveSection] = useState<'input' | 'results'>('input');
   const [redFlag, setRedFlag] = useState<string | null>(null);
@@ -50,6 +50,9 @@ export default function HomePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'email' | 'text'>('email');
   const [showScreenshotHelp, setShowScreenshotHelp] = useState(false);
+  const [showBombModal, setShowBombModal] = useState(false);
+  const [isExploding, setIsExploding] = useState(false);
+  const bombButtonRef = useRef<HTMLButtonElement>(null);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -270,123 +273,212 @@ export default function HomePage() {
       {/* Accessibility Controls */}
       <div style={{
         position: 'fixed',
-        top: showAccessibility ? '20px' : 'auto',
-        bottom: showAccessibility ? 'auto' : '20px',
+        bottom: '20px',
         left: '20px',
-        zIndex: 1000,
-        background: highContrast ? '#ffffff' : 'rgba(15, 23, 42, 0.9)',
-        border: highContrast ? '3px solid #000000' : '2px solid rgba(51, 65, 85, 0.5)',
-        borderRadius: '10px',
-        padding: showAccessibility ? '15px' : '5px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-        transition: 'all 0.3s ease'
+        zIndex: 1000
       }}>
-        {showAccessibility ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'stretch' }}>
+        {/* Accessibility Toggle Button */}
+        <button
+          onClick={() => setShowAccessibility(!showAccessibility)}
+          aria-expanded={showAccessibility}
+          aria-controls="accessibility-menu"
+          aria-label="Open accessibility settings menu"
+          style={{
+            width: '75px',
+            height: '75px',
+            border: 'none',
+            borderRadius: '8px',
+            background: '#87CEEB', // Light blue
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.05)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+          }}
+        >
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            {/* Main wheelchair frame */}
+            <path d="M8 14h8v4H8z" fill="#0B1324" opacity="0.9"/>
+            {/* Seat */}
+            <rect x="9" y="12" width="6" height="2" fill="#0B1324"/>
+            {/* Backrest */}
+            <rect x="14" y="8" width="2" height="4" fill="#0B1324"/>
+            {/* Large rear wheel */}
+            <circle cx="16" cy="16" r="3" stroke="#0B1324" strokeWidth="1.5" fill="none"/>
+            <circle cx="16" cy="16" r="0.5" fill="#0B1324"/>
+            {/* Small front wheel */}
+            <circle cx="8" cy="16" r="1.5" stroke="#0B1324" strokeWidth="1.5" fill="none"/>
+            <circle cx="8" cy="16" r="0.3" fill="#0B1324"/>
+            {/* Armrests */}
+            <rect x="9" y="10" width="6" height="1" fill="#0B1324"/>
+            {/* Footrests */}
+            <rect x="7" y="17" width="2" height="1" fill="#0B1324"/>
+            {/* Push handles */}
+            <rect x="15" y="6" width="1" height="2" fill="#0B1324"/>
+          </svg>
+        </button>
+
+        {/* Accessibility Menu */}
+        {showAccessibility && (
+          <div
+            id="accessibility-menu"
+            role="dialog"
+            aria-labelledby="accessibility-title"
+            style={{
+              position: 'absolute',
+              bottom: '85px',
+              left: '0',
+              background: highContrast ? '#ffffff' : 'rgba(15, 23, 42, 0.95)',
+              border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
+              borderRadius: '10px',
+              padding: '15px',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+              minWidth: '200px',
+              animation: 'fadeIn 0.2s ease-out'
+            }}
+          >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '5px'
+              marginBottom: '15px'
             }}>
-              <span style={{
-                fontSize: '12px',
-                fontWeight: 'bold',
-                color: highContrast ? '#000000' : '#f1f5f9'
-              }}>
-                Accessibility
-              </span>
+              <h3
+                id="accessibility-title"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  color: highContrast ? '#000000' : '#f1f5f9',
+                  margin: 0
+                }}
+              >
+                Accessibility Settings
+              </h3>
               <button
                 onClick={() => setShowAccessibility(false)}
+                aria-label="Close accessibility settings"
                 style={{
                   background: 'transparent',
                   border: 'none',
                   color: highContrast ? '#000000' : '#94a3b8',
-                  fontSize: '16px',
+                  fontSize: '18px',
                   cursor: 'pointer',
                   padding: '0',
-                  width: '20px',
-                  height: '20px',
+                  width: '24px',
+                  height: '24px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  borderRadius: '50%'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
                 }}
               >
                 ×
               </button>
             </div>
-            <button
-              onClick={() => setHighContrast(!highContrast)}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                borderRadius: '5px',
-                border: '2px solid white',
-                background: highContrast ? 'white' : 'transparent',
-                color: highContrast ? 'black' : 'white',
-                fontSize: '14px',
-                cursor: 'pointer',
-                minHeight: '44px',
-                fontWeight: 'bold'
-              }}
-            >
-              High Contrast
-            </button>
-            <button
-              onClick={() => setFontSize(Math.min(fontSize + 2, 28))}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                borderRadius: '5px',
-                border: '2px solid white',
-                background: 'transparent',
-                color: highContrast ? 'black' : 'white',
-                fontSize: '14px',
-                cursor: 'pointer',
-                minHeight: '44px',
-                fontWeight: 'bold'
-              }}
-            >
-              + Font Size
-            </button>
-            <button
-              onClick={() => setFontSize(Math.max(fontSize - 2, 16))}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                borderRadius: '5px',
-                border: '2px solid white',
-                background: 'transparent',
-                color: highContrast ? 'black' : 'white',
-                fontSize: '14px',
-                cursor: 'pointer',
-                minHeight: '44px',
-                fontWeight: 'bold'
-              }}
-            >
-              - Font Size
-            </button>
 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => setHighContrast(!highContrast)}
+                aria-pressed={highContrast}
+                aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
+                style={{
+                  width: '100%',
+                  padding: '12px 15px',
+                  borderRadius: '6px',
+                  border: '2px solid white',
+                  background: highContrast ? 'white' : 'transparent',
+                  color: highContrast ? 'black' : 'white',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  minHeight: '44px',
+                  fontWeight: 'bold',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = highContrast ? '#f0f0f0' : 'rgba(255,255,255,0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = highContrast ? 'white' : 'transparent';
+                }}
+              >
+                High Contrast {highContrast ? '✓' : ''}
+              </button>
+
+              <button
+                onClick={() => setFontSize(Math.min(fontSize + 2, 28))}
+                aria-label={`Increase font size. Current size: ${fontSize}px`}
+                style={{
+                  width: '100%',
+                  padding: '12px 15px',
+                  borderRadius: '6px',
+                  border: '2px solid white',
+                  background: 'transparent',
+                  color: highContrast ? 'black' : 'white',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  minHeight: '44px',
+                  fontWeight: 'bold',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                + Font Size ({fontSize}px)
+              </button>
+
+              <button
+                onClick={() => setFontSize(Math.max(fontSize - 2, 16))}
+                aria-label={`Decrease font size. Current size: ${fontSize}px`}
+                style={{
+                  width: '100%',
+                  padding: '12px 15px',
+                  borderRadius: '6px',
+                  border: '2px solid white',
+                  background: 'transparent',
+                  color: highContrast ? 'black' : 'white',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  minHeight: '44px',
+                  fontWeight: 'bold',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                - Font Size ({fontSize}px)
+              </button>
+            </div>
           </div>
-        ) : (
-          <button
-            onClick={() => setShowAccessibility(true)}
-            style={{
-              background: highContrast ? '#666666' : '#6b7280',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              padding: '8px 12px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              fontWeight: 'bold'
-            }}
-          >
-            ♿ Accessibility
-          </button>
         )}
       </div>
 
@@ -427,8 +519,8 @@ export default function HomePage() {
                 padding: '15px 20px',
                 borderRadius: '10px',
                 border: 'none',
-                background: '#22c55e',
-                color: 'white',
+                background: highContrast ? '#ffff00' : '#F5C84C',
+                color: highContrast ? '#000000' : '#0B1324',
                 fontSize: largeFontSize,
                 cursor: 'pointer',
                 margin: '10px',
@@ -442,8 +534,8 @@ export default function HomePage() {
               style={{
                 padding: '15px 20px',
                 borderRadius: '10px',
-                border: 'none',
-                background: '#6b7280',
+                border: '2px solid white',
+                background: 'transparent',
                 color: 'white',
                 fontSize: largeFontSize,
                 cursor: 'pointer',
@@ -452,6 +544,89 @@ export default function HomePage() {
               }}
             >
               Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bomb Success Modal */}
+      {showBombModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.9)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 3000,
+          animation: 'fadeIn 0.5s ease-out'
+        }}>
+          <div style={{
+            background: highContrast ? '#ffffff' : '#1e293b',
+            color: highContrast ? '#000000' : 'white',
+            padding: '40px',
+            borderRadius: '20px',
+            maxWidth: '500px',
+            fontSize: largeFontSize,
+            textAlign: 'center',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+            animation: 'modalSlideUp 0.6s ease-out'
+          }}>
+            <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🎉</div>
+            <h2 style={{ marginTop: 0, fontSize: '28px', color: highContrast ? '#000000' : '#22c55e' }}>Smart Move!</h2>
+            <p style={{ lineHeight: 1.6, marginBottom: '25px', fontSize: largeFontSize }}>
+              You've successfully BOMBED that suspicious message! Great job protecting yourself from potential scams.
+            </p>
+
+            <div style={{
+              background: highContrast ? '#f0f0f0' : 'rgba(30, 41, 59, 0.8)',
+              padding: '20px',
+              borderRadius: '10px',
+              marginBottom: '25px',
+              textAlign: 'left'
+            }}>
+              <h3 style={{ marginTop: 0, fontSize: largeFontSize, color: highContrast ? '#000000' : '#f1f5f9' }}>Next Steps:</h3>
+              <ul style={{ lineHeight: 1.8, margin: 0, paddingLeft: '20px' }}>
+                <li><strong>Delete the message</strong> from your inbox</li>
+                <li><strong>Block the sender</strong> to prevent future messages</li>
+                <li><strong>Report as spam</strong> if your email app has that option</li>
+              </ul>
+            </div>
+
+            <div style={{
+              fontSize: '14px',
+              color: highContrast ? '#666666' : '#94a3b8',
+              marginBottom: '25px',
+              lineHeight: 1.5
+            }}>
+              <em>This is an automated analysis and can make mistakes. If you're worried this message might be important, contact the supposed sender through official channels (not by replying to this suspicious message).</em>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowBombModal(false);
+                setRedFlag(null);
+                setBody('');
+                setSender('');
+                setResult(null);
+                setActiveSection('input');
+              }}
+              style={{
+                padding: '15px 30px',
+                borderRadius: '10px',
+                border: 'none',
+                background: highContrast ? '#ffff00' : '#F5C84C',
+                color: highContrast ? '#000000' : '#0B1324',
+                fontSize: largeFontSize,
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                minHeight: buttonHeight
+              }}
+            >
+              Got it! Stay Safe 🛡️
             </button>
           </div>
         </div>
@@ -491,7 +666,7 @@ export default function HomePage() {
                 borderRadius: '10px',
                 textAlign: 'left'
               }}>
-                <h3 style={{ marginTop: 0, color: highContrast ? '#000000' : '#22c55e' }}>📱 iPhone</h3>
+                <h3 style={{ marginTop: 0, color: highContrast ? '#000000' : '#F5C84C' }}>📱 iPhone</h3>
                 <ol style={{ lineHeight: 1.8, margin: 0, paddingLeft: '20px' }}>
                   <li>Open the suspicious text message</li>
                   <li>Press and hold the <strong>Side button</strong> (right edge)</li>
@@ -513,7 +688,7 @@ export default function HomePage() {
                 borderRadius: '10px',
                 textAlign: 'left'
               }}>
-                <h3 style={{ marginTop: 0, color: highContrast ? '#000000' : '#22c55e' }}>🤖 Android</h3>
+                <h3 style={{ marginTop: 0, color: highContrast ? '#000000' : '#F5C84C' }}>🤖 Android</h3>
                 <ol style={{ lineHeight: 1.8, margin: 0, paddingLeft: '20px' }}>
                   <li>Open the suspicious text message</li>
                   <li>Press and hold the <strong>Power button</strong> + <strong>Volume Down button</strong> simultaneously</li>
@@ -537,8 +712,8 @@ export default function HomePage() {
                 padding: '15px 30px',
                 borderRadius: '10px',
                 border: 'none',
-                background: highContrast ? '#000000' : '#22c55e',
-                color: highContrast ? '#ffffff' : 'white',
+                background: highContrast ? '#ffff00' : '#F5C84C',
+                color: highContrast ? '#000000' : '#0B1324',
                 fontSize: largeFontSize,
                 fontWeight: 'bold',
                 cursor: 'pointer',
@@ -637,7 +812,7 @@ export default function HomePage() {
               fontSize: baseFontSize,
               marginBottom: '20px'
             }}>
-              Paste any suspicious message to check for potential threats
+              Do you want to check an email or a text/SMS message for potential threats?
             </p>
 
             {/* Message Type Toggle */}
@@ -652,25 +827,45 @@ export default function HomePage() {
                 borderRadius: '50px',
                 padding: '5px',
                 border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
-                position: 'relative'
+                position: 'relative',
+                cursor: 'pointer'
               }}>
+                {/* Sliding background indicator */}
+                <div style={{
+                  position: 'absolute',
+                  top: highContrast ? '8px' : '7px',
+                  left: messageType === 'email' ? (highContrast ? '8px' : '7px') : `calc(50% + ${highContrast ? '4px' : '3.5px'})`,
+                  width: `calc(50% - ${highContrast ? '11px' : '10px'})`,
+                  height: `calc(100% - ${highContrast ? '16px' : '14px'})`,
+                  background: highContrast ? '#000000' : '#F5C84C',
+                  borderRadius: '45px',
+                  transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  zIndex: 1
+                }} />
                 <button
                   onClick={() => setMessageType('email')}
                   style={{
                     padding: '15px 30px',
                     borderRadius: '45px',
                     border: 'none',
-                    background: messageType === 'email' ? (highContrast ? '#000000' : '#22c55e') : 'transparent',
-                    color: messageType === 'email' ? (highContrast ? '#ffffff' : 'white') : (highContrast ? '#000000' : '#94a3b8'),
+                    background: 'transparent',
+                    color: messageType === 'email' ? (highContrast ? '#ffffff' : '#0B1324') : (highContrast ? '#000000' : '#94a3b8'),
                     fontSize: largeFontSize,
                     fontWeight: 700,
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    minWidth: '150px',
-                    zIndex: 2
+                    transition: 'color 0.3s ease',
+                    minWidth: '180px',
+                    zIndex: 2,
+                    position: 'relative',
+                    outline: 'none',
+                    WebkitTapHighlightColor: 'transparent',
+                    textAlign: 'center'
                   }}
                 >
-                  📧 Email
+                  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px' }}>
+                    <path d="M18 0H2C0.9 0 0.01 0.9 0.01 2L0 14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM18 4L10 9L2 4V2L10 7L18 2V4Z" fill="#0B1324" stroke="#0B1324" strokeWidth="0.5"/>
+                  </svg>
+                  Email
                 </button>
                 <button
                   onClick={() => setMessageType('text')}
@@ -678,14 +873,18 @@ export default function HomePage() {
                     padding: '15px 30px',
                     borderRadius: '45px',
                     border: 'none',
-                    background: messageType === 'text' ? (highContrast ? '#000000' : '#22c55e') : 'transparent',
-                    color: messageType === 'text' ? (highContrast ? '#ffffff' : 'white') : (highContrast ? '#000000' : '#94a3b8'),
+                    background: 'transparent',
+                    color: messageType === 'text' ? (highContrast ? '#ffffff' : '#0B1324') : (highContrast ? '#000000' : '#94a3b8'),
                     fontSize: largeFontSize,
                     fontWeight: 700,
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    minWidth: '150px',
-                    zIndex: 2
+                    transition: 'color 0.3s ease',
+                    minWidth: '180px',
+                    zIndex: 2,
+                    position: 'relative',
+                    outline: 'none',
+                    WebkitTapHighlightColor: 'transparent',
+                    textAlign: 'center'
                   }}
                 >
                   📱 Text Message
@@ -761,15 +960,15 @@ export default function HomePage() {
                         padding: '10px 15px',
                         borderRadius: '5px',
                         border: 'none',
-                        background: ocrLoading ? (highContrast ? '#cccccc' : '#6b7280') : (highContrast ? '#000000' : '#22c55e'),
-                        color: highContrast ? '#ffffff' : 'white',
+                        background: ocrLoading ? (highContrast ? '#cccccc' : '#6b7280') : (highContrast ? '#ffff00' : '#F5C84C'),
+                        color: ocrLoading ? (highContrast ? '#000000' : 'white') : (highContrast ? '#000000' : '#0B1324'),
                         fontSize: baseFontSize,
                         cursor: ocrLoading ? 'not-allowed' : 'pointer',
                         minHeight: '44px',
                         fontWeight: 'bold'
                       }}
                     >
-                      {ocrLoading ? '🔄 Extracting Text...' : '📝 Extract Text'}
+                      {ocrLoading ? '🔄 Extracting Text...' : '� Extract Text'}
                     </button>
                   )}
                   {imageFile && (
@@ -781,8 +980,8 @@ export default function HomePage() {
                       style={{
                         padding: '10px 15px',
                         borderRadius: '5px',
-                        border: 'none',
-                        background: highContrast ? '#666666' : '#6b7280',
+                        border: '2px solid white',
+                        background: 'transparent',
                         color: 'white',
                         fontSize: baseFontSize,
                         cursor: 'pointer',
@@ -837,6 +1036,14 @@ export default function HomePage() {
                 }}>
                   👤 Step 1: Sender Information
                 </label>
+                <p style={{
+                  fontSize: baseFontSize,
+                  color: highContrast ? '#000000' : '#94a3b8',
+                  margin: '0 0 15px 0',
+                  fontStyle: 'italic'
+                }}>
+                  Optional - you can include sender details in the message content below if preferred
+                </p>
                 <input
                   value={sender}
                   onChange={(e) => setSender(e.target.value)}
@@ -912,38 +1119,57 @@ export default function HomePage() {
                         style={{
                           padding: '10px 20px',
                           borderRadius: '5px',
-                          border: '2px solid #F5C84C',
-                          background: highContrast ? '#ffffff' : '#000000',
-                          color: highContrast ? '#000000' : '#F5C84C',
+                          border: '2px solid white',
+                          background: 'transparent',
+                          color: highContrast ? '#00ff00' : '#22c55e',
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
                           cursor: 'pointer',
                           minWidth: '140px'
                         }}
                       >
-                        🔍 FULL AI SCAN
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px' }}>
+                          <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+                          <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2"/>
+                        </svg>
+                        FULL AI SCAN
                       </button>
                       <button
-                        onClick={() => {
-                          setRedFlag(null);
-                          setBody('');
-                          setSender('');
-                          setResult(null);
-                          setActiveSection('input');
+                        ref={bombButtonRef}
+                        onClick={async () => {
+                          // Start explosion effect
+                          setIsExploding(true);
+
+                          // Add shake animation to the button using ref
+                          if (bombButtonRef.current) {
+                            bombButtonRef.current.style.animation = 'shake 0.5s ease-in-out';
+                          }
+
+                          // Wait for shake animation, then show modal
+                          setTimeout(() => {
+                            setIsExploding(false);
+                            setShowBombModal(true);
+                          }, 800);
                         }}
                         style={{
                           padding: '10px 20px',
                           borderRadius: '5px',
-                          border: 'none',
-                          background: highContrast ? '#666666' : '#6b7280',
-                          color: 'white',
+                          border: '2px solid white',
+                          background: 'transparent',
+                          color: highContrast ? '#ff0000' : '#ef4444',
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
                           cursor: 'pointer',
                           minWidth: '140px'
                         }}
                       >
-                        💣 BOMB IT!
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px' }}>
+                          <circle cx="12" cy="14" r="7" stroke="currentColor" strokeWidth="2"/>
+                          <circle cx="12" cy="14" r="3" fill="currentColor"/>
+                          <path d="M12 7V4M15 10L17 8M9 10L7 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          <path d="M12 4C10 2 8 3 8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                        BOMB IT!
                       </button>
                     </div>
                   </div>
@@ -962,8 +1188,8 @@ export default function HomePage() {
                   padding: '20px',
                   borderRadius: '15px',
                   border: 'none',
-                  background: loading ? (highContrast ? '#cccccc' : 'rgba(71, 85, 105, 0.8)') : (highContrast ? '#000000' : 'linear-gradient(135deg, #22c55e, #16a34a)'),
-                  color: loading ? (highContrast ? '#000000' : '#94a3b8') : (highContrast ? '#ffffff' : 'white'),
+                  background: loading ? (highContrast ? '#cccccc' : 'rgba(71, 85, 105, 0.8)') : (highContrast ? '#ffff00' : '#F5C84C'),
+                  color: loading ? (highContrast ? '#000000' : '#94a3b8') : (highContrast ? '#000000' : '#0B1324'),
                   fontSize: largeFontSize,
                   fontWeight: 700,
                   cursor: loading || !body.trim() ? 'not-allowed' : 'pointer',
@@ -1352,10 +1578,11 @@ export default function HomePage() {
               {!usage.premium && (
                 <div style={{
                   marginTop: '1rem',
-                  textAlign: 'center',
+                  width: '100%',
                   fontSize: baseFontSize,
                   color: highContrast ? '#ffffff' : '#94a3b8',
-                  lineHeight: 1.5
+                  lineHeight: 1.5,
+                  textAlign: 'center'
                 }}>
                   <p style={{ margin: 0, fontWeight: 'bold' }}>
                     🔒 No strings attached, "cancel any time for any reason" guarantee.
@@ -1415,9 +1642,9 @@ export default function HomePage() {
           <button
             onClick={() => window.location.reload()}
             style={{
-              background: highContrast ? '#666666' : '#6b7280',
+              background: 'transparent',
               color: 'white',
-              border: 'none',
+              border: '2px solid white',
               padding: '15px 25px',
               borderRadius: '10px',
               fontWeight: 600,
@@ -1432,11 +1659,11 @@ export default function HomePage() {
             🏠 Home
           </button>
           <button
-            onClick={() => window.open('https://blog.scambomb.ai', '_blank')}
+            onClick={() => window.open('https://www.scambomb.com/blog', '_blank')}
             style={{
-              background: highContrast ? '#666666' : '#6b7280',
+              background: 'transparent',
               color: 'white',
-              border: 'none',
+              border: '2px solid white',
               padding: '15px 25px',
               borderRadius: '10px',
               fontWeight: 600,
@@ -1533,6 +1760,28 @@ export default function HomePage() {
           }
           51%, 100% {
             opacity: 0;
+          }
+        }
+
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+          20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes modalSlideUp {
+          from {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
           }
         }
       `}</style>
