@@ -789,7 +789,7 @@ export default function HomePage() {
               <ul style={{ lineHeight: 1.8, margin: 0, paddingLeft: '20px' }}>
                 <li><strong>Delete the message</strong> from your inbox</li>
                 <li><strong>Block the sender</strong> to prevent future messages</li>
-                <li><strong>Report as spam</strong> if your email app has that option</li>
+                <li><strong>Report as spam</strong> if your email app has that option - just say "report as spam"</li>
               </ul>
             </div>
 
@@ -1338,9 +1338,9 @@ export default function HomePage() {
                           // Start explosion effect
                           setIsExploding(true);
 
-                          // Add shake animation to the button using ref
+                          // Add spin animation to the button using ref
                           if (bombButtonRef.current) {
-                            bombButtonRef.current.style.animation = 'shake 0.5s ease-in-out';
+                            bombButtonRef.current.style.animation = 'spin 0.5s ease-in-out';
                           }
 
                           // Wait for shake animation, then show modal
