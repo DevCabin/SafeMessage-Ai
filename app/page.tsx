@@ -1838,7 +1838,24 @@ export default function HomePage() {
           flexWrap: 'wrap'
         }}>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              // Reset form state instead of reloading page
+              setSender('');
+              setBody('');
+              setResult(null);
+              setRedFlag(null);
+              setActiveSection('input');
+              setDisplayedText('');
+              setIsTyping(false);
+              setFullText('');
+              setImageFile(null);
+              setImagePreview(null);
+              setMessageType('email');
+              setShowBombModal(false);
+              setIsExploding(false);
+              // Scroll to top
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             style={{
               background: 'transparent',
               color: 'white',
