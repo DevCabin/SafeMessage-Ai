@@ -1353,11 +1353,9 @@ export default function HomePage() {
                             setUsage(u);
                           }
 
-                          // Wait for shake animation, then show modal
-                          setTimeout(() => {
-                            setIsExploding(false);
-                            setShowBombModal(true);
-                          }, 800);
+                          // Show modal immediately and let animation play
+                          console.log('Setting showBombModal to true');
+                          setShowBombModal(true);
                         }}
                         style={{
                           padding: '10px 20px',
