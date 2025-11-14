@@ -259,7 +259,29 @@ export default function HomePage() {
       });
 
       if (res.status === 402) {
-        if (confirm("You've hit the free limit. Upgrade to premium?")) {
+        const userChoice = confirm("Looks like you're enjoying ScamBomb! 🎉\n\nBecause you're a power user, we're giving you a special offer:\n\n🔥 LOGIN WITH GMAIL TODAY & GET 5 MORE FREE SCANS! 🔥\n\nOr upgrade to premium for unlimited protection.\n\nWould you like to login with Gmail for your bonus scans?");
+
+        if (userChoice) {
+          // Try to authenticate with Google
+          try {
+            const authRes = await fetch("/api/auth/google", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({})
+            });
+            const authData = await authRes.json();
+            if (authData.url) {
+              window.location.href = authData.url;
+              return;
+            }
+          } catch (authError) {
+            console.error("Auth error:", authError);
+          }
+        }
+
+        // If they decline or auth fails, offer premium upgrade
+        const upgradeChoice = confirm("No problem! Would you like to upgrade to premium for unlimited scans instead?");
+        if (upgradeChoice) {
           const pay = await fetch("/api/stripe/checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
