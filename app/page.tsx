@@ -56,6 +56,7 @@ export default function HomePage() {
   const [accessGranted, setAccessGranted] = useState(false);
   const [showAccessDenied, setShowAccessDenied] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
 
   // Access control logic - runs on mount
@@ -240,6 +241,12 @@ export default function HomePage() {
   };
 
   const analyze = async () => {
+    // Check if free uses are exhausted and user hasn't dismissed the modal
+    if (usage.used >= usage.limit && !usage.premium && !upgradeModalDismissed) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     setLoading(true);
     setResult(null);
 
@@ -1035,7 +1042,10 @@ export default function HomePage() {
             </div>
 
             <button
-              onClick={() => setShowUpgradeModal(false)}
+              onClick={() => {
+                setShowUpgradeModal(false);
+                setUpgradeModalDismissed(true);
+              }}
               style={{
                 marginTop: '20px',
                 background: 'transparent',
@@ -1536,21 +1546,27 @@ export default function HomePage() {
                     <div style={{ marginTop: '15px', display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                       <button
                         onClick={async () => {
+                          // Check if free uses are exhausted and user hasn't dismissed the modal
+                          if (usage.used >= usage.limit && !usage.premium && !upgradeModalDismissed) {
+                            setShowUpgradeModal(true);
+                            return;
+                          }
+
                           setRedFlag(null);
                           await proceedWithAIAnalysis();
                         }}
-                        disabled={usage.used >= usage.limit && !usage.premium}
+                        disabled={upgradeModalDismissed && usage.used >= usage.limit && !usage.premium}
                         style={{
                           padding: '10px 20px',
                           borderRadius: '5px',
                           border: '2px solid white',
                           background: 'transparent',
-                          color: (usage.used >= usage.limit && !usage.premium) ? (highContrast ? '#666666' : '#64748b') : (highContrast ? '#00ff00' : '#22c55e'),
+                          color: (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? (highContrast ? '#666666' : '#64748b') : (highContrast ? '#00ff00' : '#22c55e'),
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
-                          cursor: (usage.used >= usage.limit && !usage.premium) ? 'not-allowed' : 'pointer',
+                          cursor: (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? 'not-allowed' : 'pointer',
                           minWidth: '140px',
-                          opacity: (usage.used >= usage.limit && !usage.premium) ? 0.5 : 1
+                          opacity: (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? 0.5 : 1
                         }}
                       >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px' }}>
@@ -1562,6 +1578,12 @@ export default function HomePage() {
                       <button
                         ref={bombButtonRef}
                         onClick={async () => {
+                          // Check if free uses are exhausted and user hasn't dismissed the modal
+                          if (usage.used >= usage.limit && !usage.premium && !upgradeModalDismissed) {
+                            setShowUpgradeModal(true);
+                            return;
+                          }
+
                           console.log('💣 Bomb Action Triggered'); // Temporary logging
                           // Start explosion effect
                           setIsExploding(true);
@@ -1585,18 +1607,18 @@ export default function HomePage() {
                           console.log('Setting showBombModal to true');
                           setShowBombModal(true);
                         }}
-                        disabled={usage.used >= usage.limit && !usage.premium}
+                        disabled={upgradeModalDismissed && usage.used >= usage.limit && !usage.premium}
                         style={{
                           padding: '10px 20px',
                           borderRadius: '5px',
                           border: '2px solid white',
                           background: 'transparent',
-                          color: (usage.used >= usage.limit && !usage.premium) ? (highContrast ? '#666666' : '#64748b') : (highContrast ? '#ff0000' : '#ef4444'),
+                          color: (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? (highContrast ? '#666666' : '#64748b') : (highContrast ? '#ff0000' : '#ef4444'),
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
-                          cursor: (usage.used >= usage.limit && !usage.premium) ? 'not-allowed' : 'pointer',
+                          cursor: (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? 'not-allowed' : 'pointer',
                           minWidth: '140px',
-                          opacity: (usage.used >= usage.limit && !usage.premium) ? 0.5 : 1
+                          opacity: (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? 0.5 : 1
                         }}
                       >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px' }}>
