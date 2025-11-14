@@ -512,16 +512,45 @@ export default function HomePage() {
               e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
             }}
           >
-            <Image
-              src={userProfile.picture}
-              alt="Profile"
-              width={32}
-              height={32}
-              style={{
-                borderRadius: '50%',
-                border: '2px solid #F5C84C'
-              }}
-            />
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              border: '2px solid #F5C84C',
+              background: '#F5C84C',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#0B1324',
+              overflow: 'hidden'
+            }}>
+              <Image
+                src={userProfile.picture}
+                alt="Profile"
+                width={32}
+                height={32}
+                style={{
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }}
+                onError={(e) => {
+                  // Fallback to user's initial if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  const fallbackText = userProfile.name
+                    ? userProfile.name.charAt(0).toUpperCase()
+                    : userProfile.email
+                      ? userProfile.email.charAt(0).toUpperCase()
+                      : '?';
+                  target.style.display = 'none';
+                  target.parentElement!.innerHTML = fallbackText;
+                  target.parentElement!.style.display = 'flex';
+                  target.parentElement!.style.alignItems = 'center';
+                  target.parentElement!.style.justifyContent = 'center';
+                }}
+              />
+            </div>
             <span style={{
               color: highContrast ? '#000000' : '#f1f5f9',
               fontSize: baseFontSize,
