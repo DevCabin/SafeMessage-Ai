@@ -6,26 +6,97 @@ import { getKV } from "@/lib/kv";
 
 const FREE_LIMIT = 5;
 
+// Helper function to get user from session token
+async function getUserFromSessionForAnalyze(request: NextRequest) {
+  const kv = getKV();
+
+  // Try to get session token from Authorization header first
+  const authHeader = request.headers.get('authorization');
+  let sessionToken = null;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    sessionToken = authHeader.substring(7);
+  } else {
+    // Fallback to cookie or query parameter
+    const cookieToken = request.cookies.get('session_token')?.value;
+    const queryToken = request.nextUrl.searchParams.get('session_token');
+    sessionToken = cookieToken || queryToken;
+  }
+
+  if (!sessionToken) {
+    return null;
+  }
+
+  // Verify session
+  const session = await kv.get(`session:${sessionToken}`) as any;
+  if (!session) {
+    return null;
+  }
+
+  // Get user data
+  const user = await kv.get(`user:${session.google_id}`) as any;
+  if (!user) {
+    return null;
+  }
+
+  return { user, session };
+}
+
 export async function POST(req: NextRequest) {
   const { sender = "", body = "", context = "", fingerprint } = await req.json().catch(() => ({}));
   if (!body || typeof body !== "string") {
     return NextResponse.json({ error: "Missing message body" }, { status: 400 });
   }
 
-  const uid = await getOrCreateUid(fingerprint);
   const kv = getKV();
 
-  const premium = (await kv.get<boolean>(`premium:${uid}`)) || false;
-  let used = (await kv.get<number>(`usage:${uid}`)) || 0;
+  // Check if user is authenticated
+  const authResult = await getUserFromSessionForAnalyze(req);
+  let user = null;
+  let isAuthenticated = false;
 
-  if (!premium && used >= FREE_LIMIT) {
-    return NextResponse.json({ error: "Free limit reached" }, { status: 402 });
+  if (authResult) {
+    user = authResult.user;
+    isAuthenticated = true;
   }
 
-  // Increment usage pre-call for consistency; you can move post-call if desired
+  // For backward compatibility, still get/create UID for anonymous users
+  const uid = await getOrCreateUid(fingerprint);
+
+  let premium = false;
+  let freeUsesRemaining = FREE_LIMIT;
+
+  if (isAuthenticated) {
+    // Use authenticated user data
+    premium = user.is_premium || false;
+    freeUsesRemaining = user.free_uses_remaining || 0;
+
+    if (!premium && freeUsesRemaining <= 0) {
+      return NextResponse.json({ error: "Free limit reached" }, { status: 402 });
+    }
+  } else {
+    // Use legacy anonymous tracking
+    premium = (await kv.get<boolean>(`premium:${uid}`)) || false;
+    const used = (await kv.get<number>(`usage:${uid}`)) || 0;
+    freeUsesRemaining = FREE_LIMIT - used;
+
+    if (!premium && used >= FREE_LIMIT) {
+      return NextResponse.json({ error: "Free limit reached" }, { status: 402 });
+    }
+  }
+
+  // Decrement free uses for non-premium users
   if (!premium) {
-    used += 1;
-    await kv.set(`usage:${uid}`, used);
+    if (isAuthenticated) {
+      user.free_uses_remaining = Math.max(0, user.free_uses_remaining - 1);
+      user.total_scans = (user.total_scans || 0) + 1;
+      user.last_active = new Date().toISOString();
+      await kv.set(`user:${user.google_id}`, user);
+    } else {
+      // Legacy anonymous tracking
+      const used = (await kv.get<number>(`usage:${uid}`)) || 0;
+      await kv.set(`usage:${uid}`, used + 1);
+    }
   }
 
   const userContent = [

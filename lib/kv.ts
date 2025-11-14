@@ -8,8 +8,13 @@ class LocalKV {
     return (this.data.get(key) as T) || null;
   }
 
-  async set(key: string, value: unknown): Promise<void> {
+  async set(key: string, value: unknown, options?: { ex?: number }): Promise<void> {
     this.data.set(key, value);
+    // Note: expiration not implemented for local development
+  }
+
+  async del(key: string): Promise<void> {
+    this.data.delete(key);
   }
 }
 

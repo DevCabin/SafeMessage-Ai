@@ -546,16 +546,62 @@ Value: {
 **API Endpoints:**
 
 #### `POST /api/auth/google`
-Initiates Google OAuth flow and returns authorization URL.
+Initiates Google OAuth flow and returns authorization URL with CSRF protection.
+
+**Request:** `POST /api/auth/google`
+**Response:**
+```json
+{
+  "url": "https://accounts.google.com/oauth/authorize?..."
+}
+```
 
 #### `GET /api/auth/callback`
-Handles OAuth callback, verifies tokens, and creates/updates user records.
+Handles OAuth callback, verifies tokens, creates/updates user records, and establishes sessions.
+
+**Request:** `GET /api/auth/callback?code=...&state=...`
+**Response:** Redirect to frontend with session token
 
 #### `GET /api/user/profile`
-Returns current user profile and statistics.
+Returns current authenticated user profile and statistics.
+
+**Request:** `GET /api/user/profile` (with Authorization header or session_token)
+**Response:**
+```json
+{
+  "google_id": "123456789",
+  "email": "user@example.com",
+  "name": "John Doe",
+  "picture": "https://...",
+  "total_scans": 15,
+  "total_bombs": 3,
+  "free_uses_remaining": 2,
+  "safety_score": 83,
+  "is_premium": false,
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "last_active": "2025-01-15T10:30:00.000Z"
+}
+```
 
 #### `POST /api/user/signup`
-Links anonymous SBUID with authenticated email account.
+Links anonymous SBUID with authenticated Google account and migrates legacy data.
+
+**Request:** `POST /api/user/signup`
+```json
+{
+  "sbuid": "device-fingerprint-uuid"
+}
+```
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Account linked successfully",
+  "migrated_scans": 3,
+  "bonus_uses": 5,
+  "user": { ... }
+}
+```
 
 ### User State Management
 
