@@ -55,6 +55,8 @@ export default function HomePage() {
   const bombButtonRef = useRef<HTMLButtonElement>(null);
   const [accessGranted, setAccessGranted] = useState(false);
   const [showAccessDenied, setShowAccessDenied] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   // Access control logic - runs on mount
   useEffect(() => {
@@ -80,6 +82,8 @@ export default function HomePage() {
         history.replaceState(null, '', cleanUrl);
 
         setAccessGranted(true);
+        // Fetch user profile after successful auth
+        fetchUserProfile();
         return;
       }
 
@@ -93,10 +97,14 @@ export default function HomePage() {
         history.replaceState(null, '', cleanUrl);
 
         setAccessGranted(true);
+        // Check if user is already authenticated
+        fetchUserProfile();
       } else if (hasAuthCookie) {
         // Return visitor with valid cookie
         console.log('✅ Access granted via authorization cookie');
         setAccessGranted(true);
+        // Check if user is already authenticated
+        fetchUserProfile();
       } else {
         // No valid access - show access denied
         console.log('❌ Access denied - no valid parameters or cookie');
@@ -106,6 +114,22 @@ export default function HomePage() {
 
     checkAccess();
   }, []);
+
+  // Fetch user profile if authenticated
+  const fetchUserProfile = async () => {
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const profile = await res.json();
+        setUserProfile(profile);
+      }
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+    }
+  };
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -259,37 +283,8 @@ export default function HomePage() {
       });
 
       if (res.status === 402) {
-        const userChoice = confirm("Looks like you're enjoying ScamBomb! 🎉\n\nBecause you're a power user, we're giving you a special offer:\n\n🔥 LOGIN WITH GMAIL TODAY & GET 5 MORE FREE SCANS! 🔥\n\nOr upgrade to premium for unlimited protection.\n\nWould you like to login with Gmail for your bonus scans?");
-
-        if (userChoice) {
-          // Try to authenticate with Google
-          try {
-            const authRes = await fetch("/api/auth/google", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({})
-            });
-            const authData = await authRes.json();
-            if (authData.url) {
-              window.location.href = authData.url;
-              return;
-            }
-          } catch (authError) {
-            console.error("Auth error:", authError);
-          }
-        }
-
-        // If they decline or auth fails, offer premium upgrade
-        const upgradeChoice = confirm("No problem! Would you like to upgrade to premium for unlimited scans instead?");
-        if (upgradeChoice) {
-          const pay = await fetch("/api/stripe/checkout", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, fingerprint })
-          });
-          const { url } = await pay.json();
-          if (url) window.location.href = url;
-        }
+        setShowUpgradeModal(true);
+        setLoading(false);
         return;
       }
 
@@ -466,28 +461,77 @@ export default function HomePage() {
       fontSize: baseFontSize,
       position: 'relative'
     }}>
-      {/* Help Button - Fixed at top right */}
-      <button
-        onClick={() => setShowHelp(true)}
-        style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          padding: '15px 20px',
-          borderRadius: '10px',
-          border: 'none',
-          background: '#ff6b6b',
-          color: 'white',
-          fontSize: largeFontSize,
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          zIndex: 1000,
-          boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-          minHeight: buttonHeight
-        }}
-      >
-        ❓ Need Help?
-      </button>
+      {/* User Status & Help Button - Fixed at top right */}
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '15px',
+        zIndex: 1000
+      }}>
+        {userProfile && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              background: highContrast ? '#ffffff' : 'rgba(15, 23, 42, 0.9)',
+              border: highContrast ? '2px solid #000000' : '1px solid rgba(71, 85, 105, 0.5)',
+              borderRadius: '25px',
+              padding: '8px 15px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+              transition: 'all 0.2s ease'
+            }}
+            onClick={() => window.location.href = '/account'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+            }}
+          >
+            <img
+              src={userProfile.picture}
+              alt="Profile"
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                border: '2px solid #F5C84C'
+              }}
+            />
+            <span style={{
+              color: highContrast ? '#000000' : '#f1f5f9',
+              fontSize: baseFontSize,
+              fontWeight: 600
+            }}>
+              Logged in
+            </span>
+          </div>
+        )}
+        <button
+          onClick={() => setShowHelp(true)}
+          style={{
+            padding: '15px 20px',
+            borderRadius: '10px',
+            border: 'none',
+            background: '#ff6b6b',
+            color: 'white',
+            fontSize: largeFontSize,
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+            minHeight: buttonHeight
+          }}
+        >
+          ❓ Need Help?
+        </button>
+      </div>
 
       {/* Accessibility Controls */}
       <div style={{
@@ -847,6 +891,163 @@ export default function HomePage() {
               }}
             >
               Got it! Stay Safe 🛡️
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Upgrade Modal */}
+      {showUpgradeModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.9)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2500
+        }}>
+          <div style={{
+            background: highContrast ? '#ffffff' : '#1e293b',
+            color: highContrast ? '#000000' : 'white',
+            padding: '40px',
+            borderRadius: '20px',
+            maxWidth: '500px',
+            fontSize: largeFontSize,
+            textAlign: 'center',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+            animation: 'modalSlideUp 0.6s ease-out'
+          }}>
+            <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🎉</div>
+            <h2 style={{ marginTop: 0, fontSize: '28px', color: highContrast ? '#000000' : '#F5C84C' }}>You're a Power User!</h2>
+            <p style={{ lineHeight: 1.6, marginBottom: '25px', fontSize: largeFontSize }}>
+              Looks like you're enjoying ScamBomb! Because you're a power user, we're giving you a special offer:
+            </p>
+
+            <div style={{
+              background: highContrast ? '#f0f0f0' : 'rgba(30, 41, 59, 0.8)',
+              padding: '25px',
+              borderRadius: '15px',
+              marginBottom: '25px',
+              border: highContrast ? '3px solid #000000' : '2px solid #F5C84C'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🔥</div>
+              <h3 style={{
+                margin: '0 0 15px 0',
+                fontSize: '24px',
+                color: highContrast ? '#000000' : '#F5C84C'
+              }}>
+                LOGIN WITH GMAIL TODAY & GET 5 MORE FREE SCANS!
+              </h3>
+              <p style={{
+                margin: 0,
+                fontSize: baseFontSize,
+                color: highContrast ? '#000000' : '#94a3b8',
+                lineHeight: 1.5
+              }}>
+                Or upgrade to premium for unlimited protection at just $5/month.
+              </p>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '15px',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={async () => {
+                  setShowUpgradeModal(false);
+                  try {
+                    const authRes = await fetch("/api/auth/google", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({})
+                    });
+                    const authData = await authRes.json();
+                    if (authData.url) {
+                      window.location.href = authData.url;
+                      return;
+                    }
+                  } catch (authError) {
+                    console.error("Auth error:", authError);
+                  }
+                  alert("Authentication failed. Please try again.");
+                }}
+                style={{
+                  background: highContrast ? '#ffff00' : '#F5C84C',
+                  color: highContrast ? '#000000' : '#0B1324',
+                  border: 'none',
+                  padding: '15px 30px',
+                  borderRadius: '10px',
+                  fontSize: largeFontSize,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  minHeight: buttonHeight,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Login with Gmail
+              </button>
+              <button
+                onClick={async () => {
+                  setShowUpgradeModal(false);
+                  try {
+                    const res = await fetch("/api/stripe/checkout", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email, fingerprint })
+                    });
+                    const { url } = await res.json();
+                    if (url) window.location.href = url;
+                  } catch (e) {
+                    console.error("Checkout error:", e);
+                    alert("Payment setup failed. Please check your Stripe API keys are configured correctly.");
+                  }
+                }}
+                style={{
+                  background: 'transparent',
+                  color: highContrast ? '#000000' : 'white',
+                  border: '2px solid white',
+                  padding: '15px 30px',
+                  borderRadius: '10px',
+                  fontSize: largeFontSize,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  minHeight: buttonHeight,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                💎 Upgrade to Premium
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              style={{
+                marginTop: '20px',
+                background: 'transparent',
+                color: highContrast ? '#666666' : '#64748b',
+                border: 'none',
+                fontSize: baseFontSize,
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              Maybe Later
             </button>
           </div>
         </div>

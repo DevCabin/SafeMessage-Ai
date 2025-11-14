@@ -4,7 +4,7 @@ A web application that uses AI to analyze messages for phishing, scams, and soci
 
 ## 📊 Current Status
 
-- **Version**: 2.1.0 (User Tracking & Authentication)
+- **Version**: 2.1.2 (Enhanced User Experience)
 - **Status**: Development Ready
 - **Deployment**: Vercel (Production Ready)
 - **Linting**: ESLint configured with strict rules
@@ -239,6 +239,15 @@ If you encounter issues:
 For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
+
+### v2.1.2 (2025-11-14) - **ENHANCED USER EXPERIENCE**
+- **🎉 Friendly Upgrade Modal**: Replaced abrupt alert dialog with polished modal offering clear choices
+- **👤 User Avatar Display**: Added Google avatar and "Logged in" text in top right corner when authenticated
+- **📊 Comprehensive Account Page**: Created detailed user dashboard with lifetime stats, safety scores, and account management
+- **🔄 Improved User Flow**: Seamless navigation from free limit → upgrade prompt → login → account page
+- **🎨 Enhanced UI/UX**: Better visual hierarchy and user guidance throughout the authentication journey
+- **📱 Responsive Design**: Account page optimized for mobile and desktop viewing
+- **🛡️ Privacy-Focused**: Clear display of user data with proper account controls
 
 ### v2.1.1 (2025-11-14) - **SIMPLIFIED AUTH ARCHITECTURE**
 - **🏗️ Unified App Architecture**: Auth now only on app.scambomb.com (removed from marketing site)
