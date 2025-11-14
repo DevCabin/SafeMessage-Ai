@@ -83,6 +83,15 @@ export async function GET(request: NextRequest) {
         created_at: new Date().toISOString(),
         last_active: new Date().toISOString(),
         is_premium: false,
+        // Payment tracking fields
+        stripe_customer_id: null,
+        stripe_subscription_id: null,
+        subscription_plan: null, // 'monthly' | 'annual' | null
+        subscription_status: null, // 'active' | 'canceled' | 'past_due' | 'incomplete' | null
+        subscription_current_period_end: null,
+        subscription_cancel_at_period_end: false,
+        payment_history: [], // Array of payment objects
+        lifetime_value: 0, // Total amount paid in cents
       };
       await kv.set(`user:${googleId}`, newUser);
     }

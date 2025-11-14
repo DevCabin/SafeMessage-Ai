@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getOrCreateUid } from "../../_session";
+import { getKV } from "@/lib/kv";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-06-20" });
 
@@ -19,11 +20,22 @@ export async function POST(req: NextRequest) {
 
     const { email, fingerprint, productId, plan } = await req.json().catch(() => ({}));
     console.log('Checkout request:', { email: email ? 'provided' : 'not provided', fingerprint: fingerprint ? 'provided' : 'not provided', productId, plan });
-    console.log('Environment variables:', {
-      STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID ? 'set' : 'not set',
-      STRIPE_ANNUAL_PRICE_ID: process.env.STRIPE_ANNUAL_PRICE_ID ? 'set' : 'not set'
-    });
+
+    const kv = getKV();
     const uid = await getOrCreateUid(fingerprint);
+
+    // Check if user is authenticated
+    const authHeader = req.headers.get('authorization');
+    let sessionToken = null;
+    let userKey = null;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      sessionToken = authHeader.substring(7);
+      const session = await kv.get(`session:${sessionToken}`) as any;
+      if (session?.google_id) {
+        userKey = `user:${session.google_id}`;
+      }
+    }
 
     // Determine price ID based on plan or provided productId
     let priceId = productId;
@@ -43,16 +55,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No price ID available" }, { status: 500 });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    // Create checkout session
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       mode: "subscription",
       customer_email: email || undefined,
       line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=cancel`,
-    metadata: { uid },
-    // For now, we'll handle premium status manually via Stripe dashboard
-    // Webhooks can be added later for automatic updates
-    });
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=cancel`,
+      metadata: { uid },
+    };
+
+    // If user is authenticated, add their user key to metadata for webhook processing
+    if (userKey) {
+      sessionConfig.metadata = { ...sessionConfig.metadata, user_key: userKey };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
+
+    // If user is authenticated, store a temporary mapping for webhook processing
+    if (userKey && session.customer) {
+      await kv.set(`temp_customer:${session.customer}`, userKey, { ex: 3600 }); // 1 hour expiry
+    }
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
