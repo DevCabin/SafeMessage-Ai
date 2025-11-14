@@ -131,13 +131,14 @@ In your Vercel project settings, add these environment variables:
 ## 🏗️ Architecture
 
 ```
-Frontend (Next.js + React)
+scambomb.com (Marketing Website)
     ↓
-API Routes (/api/*)
-    ↓
-OpenAI API (GPT-4o-mini)
-    ↓
-Analysis Response
+app.scambomb.com (Unified App)
+├── Frontend (Next.js + React)
+├── API Routes (/api/*)
+├── Google OAuth Authentication
+├── OpenAI API (GPT-4o-mini)
+└── Vercel KV Database
 
 Payment Flow:
 User → Stripe Checkout → Webhook → Vercel KV → Premium Access
@@ -239,6 +240,14 @@ For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
 
+### v2.1.1 (2025-11-14) - **SIMPLIFIED AUTH ARCHITECTURE**
+- **🏗️ Unified App Architecture**: Auth now only on app.scambomb.com (removed from marketing site)
+- **🎯 Streamlined OAuth**: Single-domain authentication eliminates cross-domain complexity
+- **📚 Updated Documentation**: README.md and DEVELOPER_GUIDE.md reflect simplified architecture
+- **🧹 Code Cleanup**: Removed dual-deployment auth logic and environment variables
+- **🔧 Environment Variables**: Updated .env.local.example for unified app setup
+- **🚀 Production Ready**: Clean separation between marketing (scambomb.com) and app (app.scambomb.com)
+
 ### v2.1.0 (2025-11-13) - **USER TRACKING & AUTHENTICATION SYSTEM**
 - **👤 User Database**: Implemented comprehensive user tracking with permanent SBUID fingerprints
 - **🔐 Google OAuth**: Added secure authentication supporting all Google accounts (gmail.com, Workspace, etc.)
@@ -249,7 +258,7 @@ For questions, please open an issue on GitHub.
 - **🛡️ Enhanced Privacy**: User-controlled data with export/deletion capabilities
 - **📈 Backward Compatibility**: Seamless migration from existing anonymous usage
 - **🎨 Account Management**: Basic profile management and subscription controls
-- **📚 Comprehensive Documentation**: Updated DEVELOPER_GUIDE.md with complete system architecture
+- **� Comprehensive Documentation**: Updated DEVELOPER_GUIDE.md with complete system architecture
 
 ### v2.0.2 (2025-11-13) - **UI/UX ENHANCEMENT RELEASE**
 - **♿ Accessibility Overhaul**: Redesigned accessibility menu with 75×75px square button featuring custom wheelchair icon
@@ -257,7 +266,7 @@ For questions, please open an issue on GitHub.
 - **🔍 Menu Improvements**: Accessibility menu now starts closed, includes ARIA labels, hover effects, and better UX
 - **💛 Brand Consistency**: Updated bomb modal button to brand yellow (#F5C84C) for visual consistency
 - **📐 Text Centering**: Fixed guarantee text centering with proper width constraints
-- **🔗 URL Correction**: Fixed blog URL from incorrect subdomain to correct `https://www.scambomb.com/blog`
+- **�🔗 URL Correction**: Fixed blog URL from incorrect subdomain to correct `https://www.scambomb.com/blog`
 - **🎯 Enhanced Features**: Improved "Bomb It!" animation with ref-based implementation and better error handling
 - **📱 Responsive Design**: Better mobile experience with improved touch targets and spacing
 
