@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getKV } from '@/lib/kv';
+import { verifyJWT, isLegacyToken, verifyLegacyToken } from '@/lib/jwt';
 
-// Helper function to get user from session token
+// Helper function to get user from session token (supports both JWT and legacy tokens)
 async function getUserFromSession(request: NextRequest) {
   const kv = getKV();
 
@@ -22,19 +23,37 @@ async function getUserFromSession(request: NextRequest) {
     return null;
   }
 
-  // Verify session
-  const session = await kv.get(`session:${sessionToken}`) as any;
+  let payload = null;
+
+  // Try to verify as JWT first
+  try {
+    payload = await verifyJWT(sessionToken);
+  } catch (error) {
+    // If JWT verification fails, try legacy token
+    if (isLegacyToken(sessionToken)) {
+      payload = verifyLegacyToken(sessionToken);
+      if (!payload) {
+        return null; // Legacy token expired or invalid
+      }
+    } else {
+      return null; // Neither JWT nor legacy token
+    }
+  }
+
+  // Verify session exists in KV (for JWT tokens, we store by google_id)
+  const sessionKey = `session:${payload.google_id}`;
+  const session = await kv.get(sessionKey) as any;
   if (!session) {
     return null;
   }
 
   // Get user data
-  const user = await kv.get(`user:${session.google_id}`) as any;
+  const user = await kv.get(`user:${payload.google_id}`) as any;
   if (!user) {
     return null;
   }
 
-  return { user, session };
+  return { user, session, payload };
 }
 
 export async function GET(request: NextRequest) {

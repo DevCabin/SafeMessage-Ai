@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getOrCreateUid } from "../../_session";
 import { getKV } from "@/lib/kv";
+import { verifyJWT, isLegacyToken, verifyLegacyToken } from "@/lib/jwt";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-06-20" });
 
@@ -31,9 +32,33 @@ export async function POST(req: NextRequest) {
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
       sessionToken = authHeader.substring(7);
-      const session = await kv.get(`session:${sessionToken}`) as any;
-      if (session?.google_id) {
-        userKey = `user:${session.google_id}`;
+
+      let payload = null;
+
+      // Try to verify as JWT first
+      try {
+        payload = await verifyJWT(sessionToken);
+      } catch (error) {
+        // If JWT verification fails, try legacy token
+        if (isLegacyToken(sessionToken)) {
+          payload = verifyLegacyToken(sessionToken);
+          if (!payload) {
+            // Invalid/expired legacy token, treat as unauthenticated
+            sessionToken = null;
+          }
+        } else {
+          // Neither JWT nor legacy token, treat as unauthenticated
+          sessionToken = null;
+        }
+      }
+
+      if (payload) {
+        // Verify session exists in KV (for JWT tokens, we store by google_id)
+        const sessionKey = `session:${payload.google_id}`;
+        const session = await kv.get(sessionKey) as any;
+        if (session) {
+          userKey = `user:${payload.google_id}`;
+        }
       }
     }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
 import { getKV } from '@/lib/kv';
+import { signJWT } from '@/lib/jwt';
 
 const oauth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -96,16 +97,15 @@ export async function GET(request: NextRequest) {
       await kv.set(`user:${googleId}`, newUser);
     }
 
-    // Create a session token (simple JWT-like structure)
-    const sessionToken = Buffer.from(JSON.stringify({
+    // Create a secure JWT session token
+    const sessionToken = await signJWT({
       google_id: googleId,
-      email: email,
-      exp: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
-    })).toString('base64');
+      email: email || undefined,
+    });
 
-    // Store session
-    await kv.set(`session:${sessionToken}`, {
-      google_id: googleId,
+    // Store session metadata (for logout/invalidation if needed)
+    await kv.set(`session:${googleId}`, {
+      token_jti: 'current', // Could be enhanced with JWT ID for invalidation
       created_at: new Date().toISOString(),
     }, { ex: 86400 }); // 24 hours
 

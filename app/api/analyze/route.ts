@@ -3,10 +3,12 @@ import OpenAI from "openai";
 import { SAFE_MESSAGE_SYSTEM_PROMPT } from "@/lib/safeMessagePrompt";
 import { getOrCreateUid } from "../_session";
 import { getKV } from "@/lib/kv";
+import { verifyJWT, isLegacyToken, verifyLegacyToken } from "@/lib/jwt";
+import { rateLimitAnalyze, getRateLimitHeaders } from "@/lib/rateLimit";
 
 const FREE_LIMIT = 5;
 
-// Helper function to get user from session token
+// Helper function to get user from session token (supports both JWT and legacy tokens)
 async function getUserFromSessionForAnalyze(request: NextRequest) {
   const kv = getKV();
 
@@ -27,19 +29,37 @@ async function getUserFromSessionForAnalyze(request: NextRequest) {
     return null;
   }
 
-  // Verify session
-  const session = await kv.get(`session:${sessionToken}`) as any;
+  let payload = null;
+
+  // Try to verify as JWT first
+  try {
+    payload = await verifyJWT(sessionToken);
+  } catch (error) {
+    // If JWT verification fails, try legacy token
+    if (isLegacyToken(sessionToken)) {
+      payload = verifyLegacyToken(sessionToken);
+      if (!payload) {
+        return null; // Legacy token expired or invalid
+      }
+    } else {
+      return null; // Neither JWT nor legacy token
+    }
+  }
+
+  // Verify session exists in KV (for JWT tokens, we store by google_id)
+  const sessionKey = `session:${payload.google_id}`;
+  const session = await kv.get(sessionKey) as any;
   if (!session) {
     return null;
   }
 
   // Get user data
-  const user = await kv.get(`user:${session.google_id}`) as any;
+  const user = await kv.get(`user:${payload.google_id}`) as any;
   if (!user) {
     return null;
   }
 
-  return { user, session };
+  return { user, session, payload };
 }
 
 export async function POST(req: NextRequest) {
@@ -70,18 +90,45 @@ export async function POST(req: NextRequest) {
     // Use authenticated user data
     premium = user.is_premium || false;
     freeUsesRemaining = user.free_uses_remaining || 0;
-
-    if (!premium && freeUsesRemaining <= 0) {
-      return NextResponse.json({ error: "Free limit reached" }, { status: 402 });
-    }
   } else {
     // Use legacy anonymous tracking
     premium = (await kv.get<boolean>(`premium:${uid}`)) || false;
     const used = (await kv.get<number>(`usage:${uid}`)) || 0;
     freeUsesRemaining = FREE_LIMIT - used;
+  }
 
-    if (!premium && used >= FREE_LIMIT) {
-      return NextResponse.json({ error: "Free limit reached" }, { status: 402 });
+  // Apply rate limiting
+  const userId = isAuthenticated ? user.google_id : uid;
+  const rateLimitResult = await rateLimitAnalyze(userId, premium, isAuthenticated);
+
+  if (!rateLimitResult.allowed) {
+    const resetTime = Math.ceil(rateLimitResult.resetTime / 1000);
+    return NextResponse.json(
+      {
+        error: "Rate limit exceeded",
+        message: `Too many requests. Try again after ${new Date(rateLimitResult.resetTime).toLocaleTimeString()}.`
+      },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': resetTime.toString(),
+          ...getRateLimitHeaders(rateLimitResult),
+        }
+      }
+    );
+  }
+
+  // Check free limits for non-premium users (after rate limiting to prevent abuse)
+  if (!premium) {
+    if (isAuthenticated) {
+      if (freeUsesRemaining <= 0) {
+        return NextResponse.json({ error: "Free limit reached" }, { status: 402 });
+      }
+    } else {
+      const used = (await kv.get<number>(`usage:${uid}`)) || 0;
+      if (used >= FREE_LIMIT) {
+        return NextResponse.json({ error: "Free limit reached" }, { status: 402 });
+      }
     }
   }
 
@@ -188,9 +235,14 @@ export async function POST(req: NextRequest) {
 
   const verdict = rawVerdict as "SAFE" | "UNSAFE" | "UNKNOWN";
 
-  return NextResponse.json({
-    text,
-    verdict,
-    threatLevel: threatMatch ? `${threatPercentage}%` : "N/A"
-  });
+  return NextResponse.json(
+    {
+      text,
+      verdict,
+      threatLevel: threatMatch ? `${threatPercentage}%` : "N/A"
+    },
+    {
+      headers: getRateLimitHeaders(rateLimitResult)
+    }
+  );
 }

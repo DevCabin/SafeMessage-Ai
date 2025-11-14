@@ -12,6 +12,7 @@
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@vercel/kv": "^1.0.1",
     "google-auth-library": "^10.5.0",
+    "jose": "^6.1.1",
     "openai": "^4.58.1",
     "stripe": "^16.9.0",
     "tesseract.js": "^6.0.1",
