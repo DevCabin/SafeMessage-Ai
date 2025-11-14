@@ -13,11 +13,67 @@
 - Anonymous → Authenticated user progression
 - Comprehensive documentation in DEVELOPER_GUIDE.md
 
-### 🌐 **Public Website Integration Notes**
-When switching to the public website project:
-- **Parameter Generation**: Use `?safe_source=true&SBID=${crypto.randomUUID()}` for app access links
-- **Fingerprint Connection**: SBUID from app should connect to user records on website
-- **User Migration**: Handle anonymous app users transitioning to authenticated website users
+### 🌐 **Public Website Integration Guide**
+
+**CRITICAL: Read DEVELOPER_GUIDE.md Section "👤 User Tracking & Authentication System" for complete technical details**
+
+#### **App Access Link Generation:**
+```javascript
+// Generate access parameters for app links
+const generateAccessParams = () => {
+  const sbid = crypto.randomUUID(); // Generate unique session ID
+  return `?safe_source=true&SBID=${sbid}`;
+};
+
+// Example usage in button/link components:
+const handleAppAccess = () => {
+  const params = generateAccessParams();
+  const appUrl = `https://app.scambomb.com${params}`;
+  window.open(appUrl, '_blank');
+};
+```
+
+#### **Database Schema (Vercel KV):**
+```
+Key Pattern: user:{sbuid}
+Value: {
+  sbuid: string,           // Permanent device fingerprint
+  email: string | null,    // Added after authentication
+  total_scans: number,     // Lifetime AI analysis count
+  total_bombs: number,     // Lifetime bomb actions count
+  free_uses_remaining: number, // 5 initially, +5 after signup
+  created_at: timestamp,
+  last_active: timestamp,
+  is_premium: boolean
+}
+```
+
+#### **User Journey Integration:**
+1. **Anonymous Access**: User visits public site → clicks "Try ScamBomb" → gets SBUID → redirected to app
+2. **First Usage**: User performs AI scan or bomb action → user record created in database
+3. **Limit Reached**: User hits 5 free uses → prompted to sign up on public site
+4. **Authentication**: Google OAuth on public site → user data merged → extended free usage
+
+#### **API Endpoints (Future - when implemented):**
+- `POST /api/auth/google` - Initiate Google OAuth
+- `GET /api/auth/callback` - Handle OAuth callback
+- `GET /api/user/profile` - Get user profile and stats
+- `POST /api/user/signup` - Link anonymous SBUID with authenticated email
+
+#### **Key Integration Points:**
+- **SBUID Persistence**: Same SBUID used across public site and app
+- **Data Synchronization**: User records created in app, accessed from public site
+- **Authentication Flow**: OAuth happens on public site, affects app permissions
+- **Usage Tracking**: Free limits and premium status shared between systems
+
+#### **Implementation Checklist:**
+- [ ] Add parameter generation utility to public website
+- [ ] Update all "Try ScamBomb" buttons to include SBID parameters
+- [ ] Implement Google OAuth flow on public site
+- [ ] Create user profile/stats display on public site
+- [ ] Handle anonymous → authenticated user migration
+- [ ] Test SBUID consistency across site and app
+- [ ] Verify usage limits sync between systems
 
 ## ✅ **COMPLETED FEATURES (v1.1.0)**
 
