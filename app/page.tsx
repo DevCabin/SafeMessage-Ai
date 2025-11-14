@@ -62,9 +62,26 @@ export default function HomePage() {
       const urlParams = new URLSearchParams(window.location.search);
       const safeSource = urlParams.get('safe_source');
       const sbid = urlParams.get('SBID');
+      const authSuccess = urlParams.get('auth_success');
+      const sessionToken = urlParams.get('session_token');
 
       // Check for existing authorization cookie
       const hasAuthCookie = document.cookie.includes('scambomb_authorized=true');
+
+      // Handle OAuth callback
+      if (authSuccess === 'true' && sessionToken) {
+        console.log('✅ OAuth authentication successful');
+        // Store session token for authenticated requests
+        localStorage.setItem('scambomb_session_token', sessionToken);
+        document.cookie = 'scambomb_authorized=true; max-age=2592000; path=/; SameSite=Lax';
+
+        // Clean up URL after processing
+        const cleanUrl = window.location.pathname + window.location.hash;
+        history.replaceState(null, '', cleanUrl);
+
+        setAccessGranted(true);
+        return;
+      }
 
       if (safeSource === 'true' && sbid && sbid.length > 0) {
         // Valid parameters - authorize user
@@ -106,11 +123,23 @@ export default function HomePage() {
     generateFingerprint();
   }, []);
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const sessionToken = localStorage.getItem('scambomb_session_token');
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+
+    if (sessionToken) {
+      headers["Authorization"] = `Bearer ${sessionToken}`;
+    }
+
+    return headers;
+  };
+
   useEffect(() => {
     if (fingerprint) {
       fetch("/api/usage", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ fingerprint })
       }).then(r => r.json()).then(setUsage).catch(() => {});
     }
@@ -225,7 +254,7 @@ export default function HomePage() {
     try {
       const res = await fetch('/api/analyze', {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ sender, body, context, fingerprint })
       });
 
@@ -249,7 +278,7 @@ export default function HomePage() {
       if (fingerprint) {
         const u = await fetch("/api/usage", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: getAuthHeaders(),
           body: JSON.stringify({ fingerprint })
         }).then(r => r.json());
         setUsage(u);
