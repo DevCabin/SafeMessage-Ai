@@ -1892,22 +1892,101 @@ export default function HomePage() {
                   fontSize: baseFontSize,
                   lineHeight: 1.8,
                   color: highContrast ? '#000000' : '#e2e8f0',
-                  whiteSpace: 'pre-wrap',
                   overflow: 'auto',
                   position: 'relative'
                 }}>
-                  {displayedText}
-                  {isTyping && (
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        width: '2px',
-                        height: '1.2em',
-                        backgroundColor: highContrast ? '#000000' : '#22c55e',
-                        animation: 'blink 1s infinite',
-                        marginLeft: '2px'
-                      }}
-                    />
+                  {isTyping ? (
+                    <>
+                      <pre style={{
+                        margin: 0,
+                        fontSize: 'inherit',
+                        lineHeight: 'inherit',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {displayedText}
+                      </pre>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: '2px',
+                          height: '1.2em',
+                          backgroundColor: highContrast ? '#000000' : '#22c55e',
+                          animation: 'blink 1s infinite',
+                          marginLeft: '2px'
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <div style={{ fontSize: 'inherit', lineHeight: 'inherit' }}>
+                      {displayedText.split('\n').map((line, index) => {
+                        // Check if this line starts the "Next Steps" section
+                        if (line.trim().toLowerCase().startsWith('next steps:')) {
+                          // Find the end of the Next Steps section (next section or end of text)
+                          const remainingLines = displayedText.split('\n').slice(index + 1);
+                          let nextStepsEndIndex = remainingLines.length;
+
+                          // Look for the next major section (usually starts with a header)
+                          for (let i = 0; i < remainingLines.length; i++) {
+                            const nextLine = remainingLines[i].trim();
+                            // If we find another section header (contains colon and is short), end here
+                            if (nextLine.includes(':') && nextLine.length < 50 && !nextLine.includes('http') && !nextLine.match(/^\d+\./)) {
+                              nextStepsEndIndex = i;
+                              break;
+                            }
+                          }
+
+                          const nextStepsLines = remainingLines.slice(0, nextStepsEndIndex);
+                          const afterNextSteps = remainingLines.slice(nextStepsEndIndex);
+
+                          return (
+                            <div key={index}>
+                              <div style={{
+                                fontSize: `${parseInt(baseFontSize) * 2}px`,
+                                fontWeight: 'bold',
+                                color: highContrast ? '#000000' : '#F5C84C',
+                                marginBottom: '15px',
+                                marginTop: '20px'
+                              }}>
+                                {line}
+                              </div>
+                              <div style={{
+                                fontSize: `${parseInt(baseFontSize) * 2}px`,
+                                lineHeight: 1.6,
+                                color: highContrast ? '#000000' : '#e2e8f0',
+                                marginBottom: '20px'
+                              }}>
+                                {nextStepsLines.map((nextLine, nextIndex) => (
+                                  <div key={nextIndex} style={{ marginBottom: '8px' }}>
+                                    {nextLine}
+                                  </div>
+                                ))}
+                              </div>
+                              {afterNextSteps.map((afterLine, afterIndex) => (
+                                <div key={`after-${afterIndex}`} style={{
+                                  whiteSpace: 'pre-wrap',
+                                  marginBottom: afterIndex === afterNextSteps.length - 1 ? 0 : 'inherit'
+                                }}>
+                                  {afterLine}
+                                  {afterIndex < afterNextSteps.length - 1 && '\n'}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div key={index} style={{
+                            whiteSpace: 'pre-wrap',
+                            marginBottom: index === displayedText.split('\n').length - 1 ? 0 : 'inherit'
+                          }}>
+                            {line}
+                            {index < displayedText.split('\n').length - 1 && '\n'}
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
 
