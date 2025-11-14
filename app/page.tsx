@@ -790,6 +790,7 @@ export default function HomePage() {
                 <li><strong>Delete the message</strong> from your inbox</li>
                 <li><strong>Block the sender</strong> to prevent future messages</li>
                 <li><strong>Report as spam</strong> if your email app has that option - just say "report as spam"</li>
+                <li><strong>For text messages:</strong> Block and report the number if your phone has that option</li>
               </ul>
             </div>
 
