@@ -30,15 +30,10 @@ export async function POST(request: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
         console.log('💳 Checkout session completed:', session.id);
 
-        // Find user by customer email or metadata
+        const customerId = session.customer as string;
         const customerEmail = session.customer_details?.email;
-        if (!customerEmail) {
-          console.error('No customer email in checkout session');
-          break;
-        }
 
         // Try to find user by customer mapping first
-        const customerId = session.customer as string;
         let userKey = await kv.get(`customer:${customerId}`) as string;
 
         if (!userKey) {
@@ -46,12 +41,20 @@ export async function POST(request: NextRequest) {
           userKey = await kv.get(`temp_customer:${customerId}`) as string;
         }
 
+        if (!userKey && customerEmail) {
+          // Fallback: lookup user by email mapping
+          console.log('No customer mapping found, looking up user by email...');
+          const googleId = await kv.get(`email:${customerEmail}`) as string;
+          if (googleId) {
+            userKey = `user:${googleId}`;
+            // Store the mapping for future use
+            await kv.set(`customer:${customerId}`, userKey);
+            console.log('Found user by email lookup, stored customer mapping');
+          }
+        }
+
         if (!userKey) {
-          // Fallback: search through users by email (inefficient but works)
-          // This is a temporary solution - in production use proper indexing
-          console.log('No customer mapping found, searching users by email...');
-          // For now, skip processing if we can't find the user efficiently
-          console.error('User lookup failed - no mapping available');
+          console.error('User lookup failed - no mapping available and email search failed');
           break;
         }
 
@@ -61,8 +64,19 @@ export async function POST(request: NextRequest) {
           break;
         }
 
-        // Update user with Stripe customer ID
+        // Update user with Stripe customer ID and customer details
         user.stripe_customer_id = customerId;
+
+        // Update user info from Stripe if more complete than what we have
+        if (customerEmail && (!user.email || user.email !== customerEmail)) {
+          user.email = customerEmail;
+          console.log('Updated user email from Stripe:', customerEmail);
+        }
+
+        if (session.customer_details?.name && (!user.name || user.name !== session.customer_details.name)) {
+          user.name = session.customer_details.name;
+          console.log('Updated user name from Stripe:', session.customer_details.name);
+        }
 
         // Determine plan type from session metadata or line items
         const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
@@ -70,7 +84,7 @@ export async function POST(request: NextRequest) {
 
         if (lineItems.data.length > 0) {
           const priceId = lineItems.data[0].price?.id;
-          // Check if it's the annual plan (you'll need to set this up in Stripe)
+          // Check if it's the annual plan
           if (priceId && priceId.includes('annual')) {
             planType = 'annual';
           }
@@ -78,6 +92,7 @@ export async function POST(request: NextRequest) {
 
         user.subscription_plan = planType;
         user.is_premium = true;
+        user.subscription_status = 'active';
 
         // Add to payment history
         const paymentRecord = {
@@ -94,7 +109,10 @@ export async function POST(request: NextRequest) {
         user.lifetime_value = (user.lifetime_value || 0) + (session.amount_total || 0);
 
         await kv.set(userKey, user);
-        console.log('✅ User subscription activated:', user.email, planType);
+        console.log('✅ User subscription activated:', user.email || customerEmail, planType);
+
+        // Clean up temporary mapping
+        await kv.del(`temp_customer:${customerId}`);
         break;
       }
 
