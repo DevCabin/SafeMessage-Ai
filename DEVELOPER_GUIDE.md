@@ -2,6 +2,9 @@
 
 This guide provides a deep dive into the ScamBomb web application architecture, logic flow, and implementation details for developers.
 
+**Version:** 2.1.0 (Complete User Experience Overhaul)
+**Last Updated:** November 14, 2025
+
 ## 🏗️ Application Architecture
 
 ### High-Level Overview

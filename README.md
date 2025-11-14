@@ -4,9 +4,9 @@ A web application that uses AI to analyze messages for phishing, scams, and soci
 
 ## 📊 Current Status
 
-- **Version**: 2.1.2 (Enhanced User Experience)
-- **Status**: Development Ready
-- **Deployment**: Vercel (Production Ready)
+- **Version**: 2.1.0 (Complete User Experience Overhaul)
+- **Status**: Production Ready
+- **Deployment**: Vercel (Live)
 - **Linting**: ESLint configured with strict rules
 
 ## 🎯 Project Goals
@@ -239,6 +239,18 @@ If you encounter issues:
 For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
+
+### v2.1.0 (2025-11-14) - **COMPLETE USER EXPERIENCE OVERHAUL**
+- **🎉 Professional Upgrade Modal**: Replaced alert dialog with polished modal offering clear choices (Login/Upgrade/Maybe Later)
+- **👤 User Avatar & Status**: Added Google profile avatar and "Logged in" text in top right corner when authenticated
+- **📊 Comprehensive Account Page**: Created detailed user dashboard with lifetime stats, safety scores, and account management
+- **🔄 Seamless User Flow**: Complete journey from free limit → upgrade prompt → login → account page
+- **🛡️ Critical Security Fix**: Modal stays open during redirects - prevents payment bypass vulnerability
+- **🎨 Safari Compatibility**: Added graceful fallback for Google profile images (shows user initial when CORS blocked)
+- **💳 Enhanced Stripe Integration**: Improved webhook reliability with email-based user lookup and data sync
+- **📱 Responsive Account Design**: Account page optimized for mobile and desktop viewing
+- **🔐 Privacy Controls**: Clear display of user data with proper account management options
+- **⚡ Production Ready**: All features tested and deployed with comprehensive error handling
 
 ### v2.1.2 (2025-11-14) - **ENHANCED USER EXPERIENCE**
 - **🎉 Friendly Upgrade Modal**: Replaced abrupt alert dialog with polished modal offering clear choices
