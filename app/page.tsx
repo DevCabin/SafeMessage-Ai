@@ -1343,6 +1343,16 @@ export default function HomePage() {
                             bombButtonRef.current.style.animation = 'spin 0.5s ease-in-out';
                           }
 
+                          // Refresh usage counter since this counts as a scan attempt
+                          if (fingerprint) {
+                            const u = await fetch("/api/usage", {
+                              method: "POST",
+                              headers: getAuthHeaders(),
+                              body: JSON.stringify({ fingerprint })
+                            }).then(r => r.json());
+                            setUsage(u);
+                          }
+
                           // Wait for shake animation, then show modal
                           setTimeout(() => {
                             setIsExploding(false);

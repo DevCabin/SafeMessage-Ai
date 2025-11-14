@@ -254,21 +254,22 @@ export async function POST(req: NextRequest) {
 
 ### 5. Red-Flag Detection System
 
-**File:** `lib/redFlags.js`
+**File:** `lib/redFlags.ts`
 
 The client-side red-flag scanner provides instant feedback before AI analysis:
 
-```javascript
+```typescript
 // Pattern matching for common scam indicators
 const redFlagPatterns = [
   /urgent/i, /act now/i, /within 24 hours/i,
   /gift card/i, /wire transfer/i, /bitcoin/i,
   /irs/i, /social security/i, /account suspended/i,
   /bit\.ly/i, /tinyurl/i, /https?:\/\/[^\s]*\.(ru|cn|tk)/i
+  // Note: 'hey' was removed as it was too common in safe messages
 ];
 
 // Fast pattern matching (<2ms for 500 patterns)
-export function quickScan(text) {
+export function quickScan(text: string): RegExp | null {
   const lowerText = text.toLowerCase();
   return redFlagPatterns.find(pattern => pattern.test(lowerText)) || null;
 }
@@ -772,6 +773,54 @@ const mergedUser = {
 # Use Google OAuth test credentials
 # Verify token validation
 # Test user record creation
+```
+
+## 📋 Recent Updates (v2.1.1)
+
+### Bomb Modal Improvements
+**Date:** November 2025
+**Files:** `app/page.tsx`
+
+**Changes:**
+- **Text Instruction Update:** Changed the bomb modal instruction from generic "report as spam" to more specific "just say 'report as spam'" for clarity
+- **Animation Enhancement:** Replaced the negative shake animation with a positive spin animation for better user experience
+- **Usage Counter Fix:** Fixed critical bug where usage counter wasn't updating when users clicked "BOMB IT!" on red flag warnings
+
+**Technical Details:**
+```typescript
+// Added usage refresh to BOMB IT! button
+onClick={async () => {
+  // ... existing code ...
+  // Refresh usage counter since this counts as a scan attempt
+  if (fingerprint) {
+    const u = await fetch("/api/usage", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ fingerprint })
+    }).then(r => r.json());
+    setUsage(u);
+  }
+  // ... rest of animation code ...
+}}
+```
+
+### Red Flag Pattern Optimization
+**Date:** November 2025
+**Files:** `lib/scamPatterns.ts`
+
+**Changes:**
+- Removed 'hey' from red flag patterns as it was too common in safe messages
+- Improved pattern accuracy to reduce false positives
+
+**Before:**
+```typescript
+const redFlagPatterns = [
+  /urgent/i, /act now/i, /within 24 hours/i,
+  /gift card/i, /wire transfer/i, /bitcoin/i,
+  /irs/i, /social security/i, /account suspended/i,
+  /bit\.ly/i, /tinyurl/i, /https?:\/\/[^\s]*\.(ru|cn|tk)/i,
+  /hey/i  // ← Removed: too common in safe messages
+];
 ```
 
 ## 🔄 Future Enhancements
