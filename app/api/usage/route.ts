@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { fingerprint } = await req.json().catch(() => ({}));
+  const { fingerprint, increment = false } = await req.json().catch(() => ({}));
   const kv = getKV();
 
   // Check if user is authenticated
@@ -81,6 +81,15 @@ export async function POST(req: NextRequest) {
 
   if (authResult) {
     const { user } = authResult;
+
+    // Increment usage for authenticated users if requested
+    if (increment && !user.is_premium && (user.free_uses_remaining || 0) > 0) {
+      user.free_uses_remaining = Math.max(0, user.free_uses_remaining - 1);
+      user.total_scans = (user.total_scans || 0) + 1;
+      user.last_active = new Date().toISOString();
+      await kv.set(`user:${user.google_id}`, user);
+    }
+
     const used = FREE_LIMIT - (user.free_uses_remaining || 0);
     const premium = user.is_premium || false;
 
@@ -97,8 +106,16 @@ export async function POST(req: NextRequest) {
   const used = (await kv.get<number>(`usage:${uid}`)) || 0;
   const premium = (await kv.get<boolean>(`premium:${uid}`)) || false;
 
+  // Increment usage for anonymous users if requested
+  if (increment && !premium && used < FREE_LIMIT) {
+    await kv.set(`usage:${uid}`, used + 1);
+  }
+
+  // Get updated usage count after potential increment
+  const updatedUsed = increment ? Math.min(FREE_LIMIT, used + 1) : used;
+
   return NextResponse.json({
-    used,
+    used: updatedUsed,
     limit: FREE_LIMIT,
     premium,
     authenticated: false

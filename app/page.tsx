@@ -1349,7 +1349,7 @@ export default function HomePage() {
                             const u = await fetch("/api/usage", {
                               method: "POST",
                               headers: getAuthHeaders(),
-                              body: JSON.stringify({ fingerprint })
+                              body: JSON.stringify({ fingerprint, increment: true })
                             }).then(r => r.json());
                             setUsage(u);
                           }
