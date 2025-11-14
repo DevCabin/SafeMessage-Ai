@@ -161,11 +161,22 @@ export default function HomePage() {
 
   useEffect(() => {
     if (fingerprint) {
+      // Check for testing parameter to simulate exhausted free uses
+      const urlParams = new URLSearchParams(window.location.search);
+      const testExpired = urlParams.get('5_free_expired') === 'true';
+
       fetch("/api/usage", {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({ fingerprint })
-      }).then(r => r.json()).then(setUsage).catch(() => {});
+      }).then(r => r.json()).then(usageData => {
+        if (testExpired) {
+          // Override usage to simulate 5 used out of 5
+          setUsage({ ...usageData, used: 5, limit: 5 });
+        } else {
+          setUsage(usageData);
+        }
+      }).catch(() => {});
     }
   }, [fingerprint]);
 
