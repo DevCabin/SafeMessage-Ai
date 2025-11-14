@@ -4,8 +4,8 @@ A web application that uses AI to analyze messages for phishing, scams, and soci
 
 ## 📊 Current Status
 
-- **Version**: 2.0.2
-- **Status**: Production Ready
+- **Version**: 2.1.0 (User Tracking & Authentication)
+- **Status**: Development Ready
 - **Deployment**: Vercel (Production Ready)
 - **Linting**: ESLint configured with strict rules
 
@@ -18,7 +18,7 @@ ScamBomb helps users determine if a message (email, text, etc.) is SAFE, UNSAFE,
 - Language patterns for fraud indicators
 
 **Key Features:**
-- ✅ Free tier: 5 message analyses per device
+- ✅ Free tier: 5 message analyses per device (10 after signup)
 - 💳 Premium tier: Unlimited analyses for $5/month
 - 🔒 Privacy-focused: No message content stored
 - 🎨 Modern dark UI with accessibility features
@@ -32,6 +32,10 @@ ScamBomb helps users determine if a message (email, text, etc.) is SAFE, UNSAFE,
 - ❓ Built-in help: Screenshot instructions for iPhone/Android
 - 💣 "Bomb It!" feature: Fun way to reject suspicious messages with animations
 - 🎉 Success modal with actionable next steps
+- 👤 **User Tracking**: Lifetime statistics and gamification
+- 🔐 **Google OAuth**: Secure authentication for extended usage
+- 📊 **Personal Dashboard**: View scan history and safety scores
+- 🎮 **Gamified Experience**: Achievements, streaks, and leaderboards (planned)
 
 ## 🚀 Quick Start
 
@@ -234,6 +238,18 @@ If you encounter issues:
 For questions, please open an issue on GitHub.
 
 ## 📝 CHANGELOG
+
+### v2.1.0 (2025-11-13) - **USER TRACKING & AUTHENTICATION SYSTEM**
+- **👤 User Database**: Implemented comprehensive user tracking with permanent SBUID fingerprints
+- **🔐 Google OAuth**: Added secure authentication supporting all Google accounts (gmail.com, Workspace, etc.)
+- **📊 Lifetime Statistics**: Track total scans, bomb actions, and safety scores across sessions
+- **🎮 Gamification Ready**: Foundation for achievements, streaks, and leaderboards
+- **🔄 Extended Free Usage**: 5 additional free scans after email signup (10 total)
+- **🎯 Smart User Journey**: Anonymous → Activated → Authenticated progression
+- **🛡️ Enhanced Privacy**: User-controlled data with export/deletion capabilities
+- **📈 Backward Compatibility**: Seamless migration from existing anonymous usage
+- **🎨 Account Management**: Basic profile management and subscription controls
+- **📚 Comprehensive Documentation**: Updated DEVELOPER_GUIDE.md with complete system architecture
 
 ### v2.0.2 (2025-11-13) - **UI/UX ENHANCEMENT RELEASE**
 - **♿ Accessibility Overhaul**: Redesigned accessibility menu with 75×75px square button featuring custom wheelchair icon

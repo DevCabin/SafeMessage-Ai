@@ -53,6 +53,42 @@ export default function HomePage() {
   const [showBombModal, setShowBombModal] = useState(false);
   const [isExploding, setIsExploding] = useState(false);
   const bombButtonRef = useRef<HTMLButtonElement>(null);
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [showAccessDenied, setShowAccessDenied] = useState(false);
+
+  // Access control logic - runs on mount
+  useEffect(() => {
+    const checkAccess = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const safeSource = urlParams.get('safe_source');
+      const sbid = urlParams.get('SBID');
+
+      // Check for existing authorization cookie
+      const hasAuthCookie = document.cookie.includes('scambomb_authorized=true');
+
+      if (safeSource === 'true' && sbid && sbid.length > 0) {
+        // Valid parameters - authorize user
+        console.log('✅ Access granted via URL parameters');
+        document.cookie = 'scambomb_authorized=true; max-age=2592000; path=/; SameSite=Lax';
+
+        // Clean up URL immediately after authorization
+        const cleanUrl = window.location.pathname + window.location.hash;
+        history.replaceState(null, '', cleanUrl);
+
+        setAccessGranted(true);
+      } else if (hasAuthCookie) {
+        // Return visitor with valid cookie
+        console.log('✅ Access granted via authorization cookie');
+        setAccessGranted(true);
+      } else {
+        // No valid access - show access denied
+        console.log('❌ Access denied - no valid parameters or cookie');
+        setShowAccessDenied(true);
+      }
+    };
+
+    checkAccess();
+  }, []);
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -61,6 +97,7 @@ export default function HomePage() {
         const fp = await FingerprintJS.load();
         const result = await fp.get();
         setFingerprint(result.visitorId);
+        console.log('🔍 User Fingerprint:', result.visitorId); // Temporary logging
       } catch (error) {
         console.warn("Fingerprint generation failed, using fallback:", error);
         // Fallback will be handled by server-side UUID
@@ -156,6 +193,8 @@ export default function HomePage() {
 
     // First, run the quick local red flag scan
     console.log('🔍 ScamBomb: Starting analysis with quick local scan...');
+    console.log('📊 Usage Count:', usage.used); // Temporary logging
+    console.log('🎯 Action Type: ai_scan'); // Temporary logging
 
     // Add a brief delay to show the loading state for the quick scan
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -239,6 +278,135 @@ export default function HomePage() {
   const largeFontSize = `${fontSize + 2}px`;
   const buttonHeight = '60px'; // at least 44px
 
+  // Show access denied screen if access not granted
+  if (showAccessDenied) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: highContrast ? '#000000' : '#0B1324',
+        color: highContrast ? '#ffffff' : 'white',
+        fontSize: baseFontSize,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
+        <div style={{
+          background: highContrast ? '#ffffff' : 'rgba(15, 23, 42, 0.9)',
+          border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
+          borderRadius: '20px',
+          padding: '40px',
+          maxWidth: '600px',
+          textAlign: 'center',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🔒</div>
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: highContrast ? '#000000' : '#f1f5f9',
+            marginBottom: '20px'
+          }}>
+            Access Restricted
+          </h1>
+          <p style={{
+            fontSize: largeFontSize,
+            color: highContrast ? '#000000' : '#94a3b8',
+            lineHeight: 1.6,
+            marginBottom: '30px'
+          }}>
+            This ScamBomb analyzer is only accessible through our official website to ensure a safe and controlled user experience.
+          </p>
+
+          <div style={{
+            background: highContrast ? '#f0f0f0' : 'rgba(30, 41, 59, 0.8)',
+            padding: '25px',
+            borderRadius: '15px',
+            marginBottom: '30px',
+            textAlign: 'left'
+          }}>
+            <h3 style={{
+              fontSize: largeFontSize,
+              fontWeight: 700,
+              color: highContrast ? '#000000' : '#f1f5f9',
+              marginTop: 0,
+              marginBottom: '15px'
+            }}>
+              How to Access ScamBomb:
+            </h3>
+            <ol style={{
+              lineHeight: 1.8,
+              margin: 0,
+              paddingLeft: '20px',
+              color: highContrast ? '#000000' : '#e2e8f0'
+            }}>
+              <li>Visit our main website: <strong>scambomb.com</strong></li>
+              <li>Navigate to the analyzer section</li>
+              <li>Click "Try ScamBomb" or similar access button</li>
+              <li>You'll be automatically authorized to use the analyzer</li>
+            </ol>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            gap: '15px',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <button
+              onClick={() => window.open('https://scambomb.com', '_blank')}
+              style={{
+                background: highContrast ? '#ffff00' : '#F5C84C',
+                color: highContrast ? '#000000' : '#0B1324',
+                border: 'none',
+                padding: '15px 30px',
+                borderRadius: '10px',
+                fontSize: largeFontSize,
+                fontWeight: 700,
+                cursor: 'pointer',
+                minHeight: buttonHeight,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              🌐 Visit ScamBomb.com
+            </button>
+            <button
+              onClick={() => window.open('https://www.scambomb.com/blog', '_blank')}
+              style={{
+                background: 'transparent',
+                color: highContrast ? '#000000' : 'white',
+                border: '2px solid white',
+                padding: '15px 30px',
+                borderRadius: '10px',
+                fontSize: largeFontSize,
+                fontWeight: 600,
+                cursor: 'pointer',
+                minHeight: buttonHeight,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              📖 Read Our Blog
+            </button>
+          </div>
+
+          <p style={{
+            fontSize: '14px',
+            color: highContrast ? '#666666' : '#64748b',
+            marginTop: '30px',
+            lineHeight: 1.5
+          }}>
+            <em>This restriction helps prevent automated bots from wasting our resources and ensures all users get the full ScamBomb experience with proper guidance.</em>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Main app content - only render if access granted
   return (
     <div style={{
       minHeight: '100vh',
@@ -1137,6 +1305,7 @@ export default function HomePage() {
                       <button
                         ref={bombButtonRef}
                         onClick={async () => {
+                          console.log('💣 Bomb Action Triggered'); // Temporary logging
                           // Start explosion effect
                           setIsExploding(true);
 

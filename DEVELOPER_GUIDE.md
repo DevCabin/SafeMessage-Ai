@@ -496,6 +496,238 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 - **Error Tracking:** Failed requests and exceptions
 - **Usage Stats:** Bandwidth and function invocations
 
+## 👤 User Tracking & Authentication System (v2.1.0)
+
+### Overview
+ScamBomb implements a sophisticated user tracking system that evolves from anonymous device-based usage to authenticated user accounts with lifetime statistics and gamification.
+
+### User Journey Flow
+
+```
+Anonymous Visitor → Fingerprinted Device → Free Usage (5 scans)
+       ↓
+First Full Action (AI Scan OR Bomb) → User Record Created
+       ↓
+Free Limit Reached → Signup Prompt → Google OAuth
+       ↓
+Authenticated User → Extended Free Usage + Lifetime Stats
+```
+
+### Database Schema
+
+**User Records (Vercel KV):**
+```
+Key Pattern: user:{sbuid}
+Value: {
+  sbuid: string,           // Permanent device fingerprint
+  email: string | null,    // Added after authentication
+  total_scans: number,     // Lifetime AI analysis count
+  total_bombs: number,     // Lifetime bomb actions count
+  free_uses_remaining: number, // 5 initially, +5 after signup
+  created_at: timestamp,
+  last_active: timestamp,
+  is_premium: boolean
+}
+```
+
+**Legacy Compatibility:**
+- Existing `usage:{sbuid}` keys remain for backward compatibility
+- Existing `premium:{sbuid}` keys continue to work
+- Migration happens automatically when users authenticate
+
+### Authentication Architecture
+
+**Google OAuth Integration:**
+- **Provider:** Google (supports all Google accounts: gmail.com, googlemail.com, Workspace domains)
+- **Scopes:** `openid email profile`
+- **Security:** Server-side token verification, no client-side secrets
+- **Session:** JWT tokens with 24-hour expiry
+
+**API Endpoints:**
+
+#### `POST /api/auth/google`
+Initiates Google OAuth flow and returns authorization URL.
+
+#### `GET /api/auth/callback`
+Handles OAuth callback, verifies tokens, and creates/updates user records.
+
+#### `GET /api/user/profile`
+Returns current user profile and statistics.
+
+#### `POST /api/user/signup`
+Links anonymous SBUID with authenticated email account.
+
+### User State Management
+
+**Anonymous Phase (Current):**
+```typescript
+// Device fingerprinting (already implemented)
+const fingerprint = await fp.get().visitorId;
+
+// Usage tracking (already implemented)
+const usage = await kv.get(`usage:${fingerprint}`) || 0;
+```
+
+**Activation Phase (New):**
+```typescript
+// After first full action (AI scan OR bomb)
+const userRecord = {
+  sbuid: fingerprint,
+  total_scans: 1, // or total_bombs: 1
+  free_uses_remaining: 4, // decremented from 5
+  created_at: new Date(),
+  last_active: new Date(),
+  is_premium: false
+};
+await kv.set(`user:${fingerprint}`, userRecord);
+```
+
+**Authenticated Phase (New):**
+```typescript
+// After Google OAuth signup
+const authenticatedUser = {
+  ...userRecord,
+  email: user.email,
+  free_uses_remaining: 9 // +5 bonus after signup
+};
+await kv.set(`user:${fingerprint}`, authenticatedUser);
+```
+
+### Temporary Console Logging (Development)
+
+**Add to `app/page.tsx` for testing:**
+```typescript
+// In useEffect after fingerprint generation
+console.log('🔍 User Fingerprint:', fingerprint);
+
+// In analyze function
+console.log('📊 Usage Count:', usage.used);
+console.log('🎯 Action Type:', hasRedFlags ? 'bomb' : 'ai_scan');
+
+// In bomb button handler
+console.log('💣 Bomb Action Triggered');
+```
+
+### Signup Flow Implementation
+
+**Modal Trigger:**
+- Automatically shown when `free_uses_remaining === 0`
+- Manual trigger available in account section
+
+**Google OAuth Process:**
+```typescript
+const handleGoogleSignup = async () => {
+  const response = await fetch('/api/auth/google');
+  const { url } = await response.json();
+  window.location.href = url; // Redirect to Google
+};
+```
+
+**Post-Authentication:**
+- User redirected back to app
+- Anonymous data merged with authenticated account
+- Extended free usage granted
+- Welcome message with stats
+
+### Lifetime Statistics & Gamification
+
+**Stats Display Component:**
+```typescript
+const UserStats = ({ user }) => (
+  <div className="stats-container">
+    <div className="stat-item">
+      <span className="stat-icon">🔍</span>
+      <span className="stat-value">{user.total_scans}</span>
+      <span className="stat-label">Messages Analyzed</span>
+    </div>
+    <div className="stat-item">
+      <span className="stat-icon">💣</span>
+      <span className="stat-value">{user.total_bombs}</span>
+      <span className="stat-label">Scams BOMBED</span>
+    </div>
+    <div className="stat-item">
+      <span className="stat-icon">⭐</span>
+      <span className="stat-value">{calculateSafetyScore(user)}</span>
+      <span className="stat-label">Safety Score</span>
+    </div>
+  </div>
+);
+```
+
+**Gamification Elements:**
+- **Safety Score:** `(total_scans - total_bombs) / total_scans * 100`
+- **Achievements:** "First Bomb", "Century Club", "Safety Guardian"
+- **Streaks:** Consecutive safe message detections
+- **Leaderboards:** (Future feature)
+
+### Account Management
+
+**Basic Account Page:**
+- View lifetime statistics
+- Manage subscription (link to Stripe portal)
+- Account settings (email, preferences)
+- Data export/deletion options
+
+**Privacy Considerations:**
+- **Data Ownership:** Users control their data
+- **Export:** JSON export of all user data
+- **Deletion:** Complete account and data removal
+- **Anonymity:** Option to remain anonymous (no email required)
+
+### Migration Strategy
+
+**Backward Compatibility:**
+- Existing anonymous users continue working
+- No forced migration - signup is optional
+- Gradual transition as users hit limits
+
+**Data Migration:**
+```typescript
+// When user authenticates, merge existing data
+const existingUsage = await kv.get(`usage:${sbuid}`) || 0;
+const existingPremium = await kv.get(`premium:${sbuid}`) || false;
+
+const mergedUser = {
+  sbuid,
+  email: authenticatedUser.email,
+  total_scans: existingUsage, // Migrate legacy usage
+  total_bombs: 0, // Start fresh
+  free_uses_remaining: existingPremium ? 999 : 9, // Premium or extended free
+  created_at: new Date(),
+  last_active: new Date(),
+  is_premium: existingPremium
+};
+```
+
+### Security Considerations
+
+**OAuth Security:**
+- **State Parameter:** CSRF protection with random state tokens
+- **PKCE:** Proof Key for Code Exchange for public clients
+- **Token Storage:** HttpOnly cookies for session tokens
+
+**Data Privacy:**
+- **Minimal Collection:** Only necessary data for functionality
+- **No Message Storage:** Messages never persisted
+- **User Control:** Full data export and deletion capabilities
+
+### Testing Strategy
+
+**Test Scenarios:**
+1. **Anonymous → Authenticated Flow:** Complete signup process
+2. **Usage Limits:** Verify free limit enforcement and signup prompts
+3. **Data Migration:** Ensure legacy users transition smoothly
+4. **Stats Tracking:** Verify bomb counts and scan totals
+5. **Account Management:** Test profile updates and data export
+
+**Development Testing:**
+```bash
+# Test OAuth flow locally
+# Use Google OAuth test credentials
+# Verify token validation
+# Test user record creation
+```
+
 ## 🔄 Future Enhancements
 
 ### Potential Features
@@ -504,11 +736,14 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 - **Advanced Reporting:** Detailed threat analytics
 - **Team Accounts:** Shared usage for organizations
 - **API Access:** Direct API for integrations
+- **Social Features:** Share achievements, compete on leaderboards
+- **Advanced Gamification:** Badges, streaks, challenges
 
 ### Architecture Improvements
 - **Database Migration:** PostgreSQL for complex queries
 - **Caching Layer:** Redis for frequently accessed data
 - **Queue System:** Background processing for heavy analysis
 - **Multi-Region:** Global deployment for better performance
+- **Real-time Stats:** WebSocket updates for live statistics
 
 This guide covers the complete logic flow and architecture of ScamBomb. The application follows a simple but effective freemium model with robust security and privacy protections.

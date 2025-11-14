@@ -1,5 +1,24 @@
 # ScamBomb Development Status
 
+## ✅ **COMPLETED FEATURES (v2.1.0)**
+
+### 🔐 **Access Control System**
+- Client-side parameter validation with URL cleanup
+- Cookie-based authorization (30-day expiry)
+- Access denied screen for unauthorized users
+
+### 👤 **User Tracking Foundation**
+- Permanent SBUID fingerprinting implemented
+- Database schema designed for user records
+- Anonymous → Authenticated user progression
+- Comprehensive documentation in DEVELOPER_GUIDE.md
+
+### 🌐 **Public Website Integration Notes**
+When switching to the public website project:
+- **Parameter Generation**: Use `?safe_source=true&SBID=${crypto.randomUUID()}` for app access links
+- **Fingerprint Connection**: SBUID from app should connect to user records on website
+- **User Migration**: Handle anonymous app users transitioning to authenticated website users
+
 ## ✅ **COMPLETED FEATURES (v1.1.0)**
 
 ### 🚨 **Advanced Red-Flag Detection System**
@@ -72,6 +91,68 @@ Database (Vercel KV)
 - **Red-flag Detection**: <2ms client-side
 - **Uptime**: 99.9% on Vercel infrastructure
 - **Security**: SOC 2 compliant hosting
+
+## 🔐 **Access Control System (v2.0.3)**
+
+### **Purpose:**
+- **Prevent direct bookmarking** of the app URL
+- **Block automated bots** from wasting API resources
+- **Ensure users access** through proper channels for guided experience
+- **Maintain usage tracking** integrity
+
+### **Implementation:**
+- **Client-side validation** on app load
+- **URL parameter cleanup** after authorization
+- **Cookie-based persistence** (30-day expiry)
+- **Access denied screen** for unauthorized access
+
+### **Technical Details:**
+```javascript
+// Access control logic in app/page.tsx
+const checkAccess = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const safeSource = urlParams.get('safe_source');
+  const sbid = urlParams.get('SBID');
+  const hasAuthCookie = document.cookie.includes('scambomb_authorized=true');
+
+  if (safeSource === 'true' && sbid && sbid.length > 0) {
+    // Valid parameters - authorize and clean URL
+    document.cookie = 'scambomb_authorized=true; max-age=2592000; path=/; SameSite=Lax';
+    history.replaceState(null, '', window.location.pathname + window.location.hash);
+    setAccessGranted(true);
+  } else if (hasAuthCookie) {
+    // Return visitor
+    setAccessGranted(true);
+  } else {
+    // Access denied
+    setShowAccessDenied(true);
+  }
+};
+```
+
+### **Public Website Implementation (scambomb.com):**
+When switching to the public website project, implement parameter generation on buttons/links that direct users to the app:
+
+```javascript
+// Generate access parameters for app links
+const generateAccessParams = () => {
+  const sbid = crypto.randomUUID(); // Generate unique session ID
+  return `?safe_source=true&SBID=${sbid}`;
+};
+
+// Example usage in button/link components:
+const handleAppAccess = () => {
+  const params = generateAccessParams();
+  const appUrl = `https://app.scambomb.com${params}`;
+  window.open(appUrl, '_blank');
+};
+```
+
+**Implementation Steps:**
+1. **Add parameter generation utility** to public website
+2. **Update all "Try ScamBomb" buttons** to include parameters
+3. **Ensure consistent SBID generation** across all access points
+4. **Test parameter validation** works correctly
 
 ## 🔮 **Future Roadmap**
 - File upload support for screenshot analysis
