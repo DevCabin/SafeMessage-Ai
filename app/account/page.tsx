@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function AccountPage() {
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -114,7 +115,7 @@ export default function AccountPage() {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <a
+        <Link
           href="/"
           style={{
             display: 'inline-block',
@@ -132,7 +133,7 @@ export default function AccountPage() {
               width: 'auto'
             }}
           />
-        </a>
+        </Link>
 
         <div style={{
           display: 'flex',
@@ -148,12 +149,12 @@ export default function AccountPage() {
             borderRadius: '25px',
             padding: '8px 15px'
           }}>
-            <img
+            <Image
               src={userProfile.picture}
               alt="Profile"
+              width={32}
+              height={32}
               style={{
-                width: '32px',
-                height: '32px',
                 borderRadius: '50%',
                 border: '2px solid #F5C84C'
               }}
@@ -179,12 +180,12 @@ export default function AccountPage() {
           textAlign: 'center',
           marginBottom: '40px'
         }}>
-          <img
+          <Image
             src={userProfile.picture}
             alt="Profile Picture"
+            width={120}
+            height={120}
             style={{
-              width: '120px',
-              height: '120px',
               borderRadius: '50%',
               border: '4px solid #F5C84C',
               marginBottom: '20px'

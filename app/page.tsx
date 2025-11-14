@@ -60,6 +60,21 @@ export default function HomePage() {
 
   // Access control logic - runs on mount
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const res = await fetch('/api/user/profile', {
+          method: 'GET',
+          headers: getAuthHeaders()
+        });
+        if (res.ok) {
+          const profile = await res.json();
+          setUserProfile(profile);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+    };
+
     const checkAccess = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const safeSource = urlParams.get('safe_source');
@@ -114,22 +129,6 @@ export default function HomePage() {
 
     checkAccess();
   }, []);
-
-  // Fetch user profile if authenticated
-  const fetchUserProfile = async () => {
-    try {
-      const res = await fetch('/api/user/profile', {
-        method: 'GET',
-        headers: getAuthHeaders()
-      });
-      if (res.ok) {
-        const profile = await res.json();
-        setUserProfile(profile);
-      }
-    } catch (error) {
-      console.error('Failed to fetch user profile:', error);
-    }
-  };
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -495,12 +494,12 @@ export default function HomePage() {
               e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
             }}
           >
-            <img
+            <Image
               src={userProfile.picture}
               alt="Profile"
+              width={32}
+              height={32}
               style={{
-                width: '32px',
-                height: '32px',
                 borderRadius: '50%',
                 border: '2px solid #F5C84C'
               }}
@@ -1415,14 +1414,17 @@ export default function HomePage() {
                 </div>
                 {imagePreview && (
                   <div style={{ marginTop: '10px' }}>
-                    <img
+                    <Image
                       src={imagePreview}
                       alt="Preview"
+                      width={300}
+                      height={200}
                       style={{
                         maxWidth: '300px',
                         maxHeight: '200px',
                         borderRadius: '5px',
-                        border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)'
+                        border: highContrast ? '3px solid #000000' : '2px solid rgba(71, 85, 105, 0.5)',
+                        objectFit: 'contain'
                       }}
                     />
                   </div>
@@ -1537,16 +1539,18 @@ export default function HomePage() {
                           setRedFlag(null);
                           await proceedWithAIAnalysis();
                         }}
+                        disabled={usage.used >= usage.limit && !usage.premium}
                         style={{
                           padding: '10px 20px',
                           borderRadius: '5px',
                           border: '2px solid white',
                           background: 'transparent',
-                          color: highContrast ? '#00ff00' : '#22c55e',
+                          color: (usage.used >= usage.limit && !usage.premium) ? (highContrast ? '#666666' : '#64748b') : (highContrast ? '#00ff00' : '#22c55e'),
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
-                          cursor: 'pointer',
-                          minWidth: '140px'
+                          cursor: (usage.used >= usage.limit && !usage.premium) ? 'not-allowed' : 'pointer',
+                          minWidth: '140px',
+                          opacity: (usage.used >= usage.limit && !usage.premium) ? 0.5 : 1
                         }}
                       >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px' }}>
@@ -1581,16 +1585,18 @@ export default function HomePage() {
                           console.log('Setting showBombModal to true');
                           setShowBombModal(true);
                         }}
+                        disabled={usage.used >= usage.limit && !usage.premium}
                         style={{
                           padding: '10px 20px',
                           borderRadius: '5px',
                           border: '2px solid white',
                           background: 'transparent',
-                          color: highContrast ? '#ff0000' : '#ef4444',
+                          color: (usage.used >= usage.limit && !usage.premium) ? (highContrast ? '#666666' : '#64748b') : (highContrast ? '#ff0000' : '#ef4444'),
                           fontSize: baseFontSize,
                           fontWeight: 'bold',
-                          cursor: 'pointer',
-                          minWidth: '140px'
+                          cursor: (usage.used >= usage.limit && !usage.premium) ? 'not-allowed' : 'pointer',
+                          minWidth: '140px',
+                          opacity: (usage.used >= usage.limit && !usage.premium) ? 0.5 : 1
                         }}
                       >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px' }}>
