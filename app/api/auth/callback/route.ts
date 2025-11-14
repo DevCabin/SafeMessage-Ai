@@ -19,13 +19,13 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error('OAuth error:', error);
       return NextResponse.redirect(
-        new URL(`/?auth_error=${error}`, request.url)
+        new URL(`/?auth_error=${error}`, process.env.FRONTEND_URL || 'http://localhost:3001')
       );
     }
 
     if (!code || !state) {
       return NextResponse.redirect(
-        new URL('/?auth_error=missing_code_or_state', request.url)
+        new URL('/?auth_error=missing_code_or_state', process.env.FRONTEND_URL || 'http://localhost:3001')
       );
     }
 
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const storedState = await kv.get(`oauth_state:${state}`);
     if (!storedState) {
       return NextResponse.redirect(
-        new URL('/?auth_error=invalid_state', request.url)
+        new URL('/?auth_error=invalid_state', process.env.FRONTEND_URL || 'http://localhost:3001')
       );
     }
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     const payload = ticket.getPayload();
     if (!payload) {
       return NextResponse.redirect(
-        new URL('/?auth_error=invalid_token', request.url)
+        new URL('/?auth_error=invalid_token', process.env.FRONTEND_URL || 'http://localhost:3001')
       );
     }
 
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
     }, { ex: 86400 }); // 24 hours
 
     // Redirect back to frontend with session token
-    const redirectUrl = new URL('/', request.url);
+    const redirectUrl = new URL('/', process.env.FRONTEND_URL || 'http://localhost:3001');
     redirectUrl.searchParams.set('auth_success', 'true');
     redirectUrl.searchParams.set('session_token', sessionToken);
 
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Callback error:', error);
     return NextResponse.redirect(
-      new URL('/?auth_error=server_error', request.url)
+      new URL('/?auth_error=server_error', process.env.FRONTEND_URL || 'http://localhost:3001')
     );
   }
 }
