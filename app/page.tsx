@@ -1651,22 +1651,22 @@ export default function HomePage() {
                 onClick={async () => {
                   await analyze();
                 }}
-                disabled={loading || !body.trim()}
+                disabled={loading || !body.trim() || (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium)}
                 style={{
                   width: '100%',
                   padding: '20px',
                   borderRadius: '15px',
                   border: 'none',
-                  background: loading ? (highContrast ? '#cccccc' : 'rgba(71, 85, 105, 0.8)') : (highContrast ? '#ffff00' : '#F5C84C'),
-                  color: loading ? (highContrast ? '#000000' : '#94a3b8') : (highContrast ? '#000000' : '#0B1324'),
+                  background: loading || (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? (highContrast ? '#cccccc' : 'rgba(71, 85, 105, 0.8)') : (highContrast ? '#ffff00' : '#F5C84C'),
+                  color: loading || (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? (highContrast ? '#666666' : '#64748b') : (highContrast ? '#000000' : '#0B1324'),
                   fontSize: largeFontSize,
                   fontWeight: 700,
-                  cursor: loading || !body.trim() ? 'not-allowed' : 'pointer',
+                  cursor: loading || !body.trim() || (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '10px',
-                  opacity: loading || !body.trim() ? 0.6 : 1,
+                  opacity: loading || !body.trim() || (upgradeModalDismissed && usage.used >= usage.limit && !usage.premium) ? 0.6 : 1,
                   minHeight: buttonHeight
                 }}
               >
