@@ -243,12 +243,16 @@ export default function HomePage() {
 
   // Handle image file selection
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0]; // Take first file for now
       setImageFile(file);
       const reader = new FileReader();
       reader.onload = (e) => setImagePreview(e.target?.result as string);
       reader.readAsDataURL(file);
+
+      // Reset input so user can select same file again if needed
+      event.target.value = '';
     }
   };
 
@@ -1450,7 +1454,7 @@ export default function HomePage() {
                   <input
                     type="file"
                     accept="image/*"
-                    capture="environment"
+                    multiple // Allow selecting multiple files
                     onChange={handleImageUpload}
                     style={{
                       padding: '10px',
