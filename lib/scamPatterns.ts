@@ -113,7 +113,6 @@ export const scamPatterns: ScamPattern[] = [
   { pattern: 'you up', category: 'catfishing', description: 'Checking if recipient is awake/active', severity: 'medium' },
   { pattern: 'u up', category: 'catfishing', description: 'Checking if recipient is awake/active', severity: 'medium' },
 
-  { pattern: 'hi', category: 'catfishing', description: 'Generic greeting from unknown sender', severity: 'low' },
   { pattern: 'sup', category: 'catfishing', description: 'Casual greeting from unknown sender', severity: 'low' },
   { pattern: 'wassup', category: 'catfishing', description: 'Casual greeting from unknown sender', severity: 'low' },
   { pattern: "what's up", category: 'catfishing', description: 'Casual greeting from unknown sender', severity: 'low' },
